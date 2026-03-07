@@ -7,29 +7,21 @@
 </p>
 
 🌟 Overview:
-
-    PrintOnTime is a mobile-first document printing platform that allows users to upload PDF files, customize printing options, pay online, and print documents instantly at a kiosk using a secure code. This system removes the need for USB drives, cables, or computer access at printing centers. Users simply upload documents from their phone, pay online, and collect the printed document from a printer kiosk.
+            PrintOnTime is a mobile-first document printing platform that allows users to upload PDF files, customize printing options, pay online, and print documents instantly at a kiosk using a secure code. This system removes the need for USB drives, cables, or computer access at printing centers. Users simply upload documents from their phone, pay online, and collect the printed document from a printer kiosk.
 
 🚀 Features
-🔐 User Account System
-User signup and login with secure password hashing.
-
-Profile Management: Profile page, picture upload, and account deletion.
-
-Tracking: Logout functionality and full print history tracking.
-
+🔐 User Account System:
+         User signup and login with secure password hashing.
+         Profile Management: Profile page, picture upload, and account deletion.
+         Tracking: Logout functionality and full print history tracking.
 📄 Document Upload
-PDF Support: Automatic page count detection and file validation.
-
-UI: Mobile-friendly upload interface.
-
+         PDF Support: Automatic page count detection and file validation.
+         UI: Mobile-friendly upload interface.
 🎨 Print Customization
-Global Options: Print Mode (B&W/Color), Page Sides (Single/Double), and Copies.
-
-Per-Page Customization: Assign different modes for each page (e.g., Page 1: B&W, Page 2: Color).
-
+         Global Options: Print Mode (B&W/Color), Page Sides (Single/Double), and Copies.
+         Per-Page Customization: Assign different modes for each page (e.g., Page 1: B&W, Page 2: Color).
 💳 Online Payment & Notifications
-Razorpay Integration: Secure online payment, auto-order creation, and verification.
+        Razorpay Integration: Secure online payment, auto-order creation, and verification.
 
 Email System: Automated delivery of a 6-digit print code and instructions upon successful payment.
 
