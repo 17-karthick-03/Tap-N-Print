@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Profile - PrintOnTime</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Inter", system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0a0d14;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 420px;
+            padding: 22px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            margin-bottom: 12px;
+        }
+
+        p {
+            opacity: 0.7;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: #0f172a;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #00f7ff, #0066ff);
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .delete {
+            background: red;
+            color: #fff;
+        }
+
+        a {
+            color: #00f7ff;
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+
+        /* ===== Desktop Block ===== */
+
+        @media (min-width:768px) {
+            body {
+                display: none;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="app">
+
+        <div class="card">
+
+            <h2>Your Profile</h2>
+
+            <p>Email: {{ email }}</p>
+            <p>User Name: {{ name }}</p>
+
+            <form method="POST">
+
+                <input type="password" name="new_password" placeholder="New Password" required>
+
+                <button type="submit">Update Password</button>
+
+            </form>
+
+            <form method="POST" action="/delete-account">
+                <button class="delete">Delete Account</button>
+            </form>
+
+            <a href="/history">View Print History</a>
+            <a href="/">Back to Home</a>
+            <a href="/logout">Logout</a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

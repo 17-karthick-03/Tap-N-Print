@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Print History</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Inter", system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0a0d14;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .job {
+            background: #0f172a;
+            padding: 14px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            border-left: 4px solid #00f7ff;
+        }
+
+        .job p {
+            margin: 4px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .status {
+            font-weight: 600;
+            color: #00f7ff;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            color: #00f7ff;
+            text-decoration: none;
+        }
+
+        .empty {
+            opacity: 0.6;
+            text-align: center;
+        }
+
+        /* DESKTOP BLOCK */
+
+        @media(min-width:768px) {
+            body {
+                display: none;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>Your Print History</h2>
+
+            {% if jobs %}
+
+            {% for job in jobs %}
+            <div class="job">
+                <p><strong>File:</strong> {{ job[0].split('/')[-1] }}</p>
+                <p>Pages: {{ job[1] }}</p>
+                <p>Amount: ₹{{ job[2] }}</p>
+                <p class="status">Status: {{ job[3] }}</p>
+            </div>
+            {% endfor %}
+
+            {% else %}
+
+            <p class="empty">No print history yet.</p>
+
+            {% endif %}
+
+            <a href="/profile">← Back to Profile</a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

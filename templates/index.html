@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintOnTime</title>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Inter", system-ui, sans-serif
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0a0d14;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center
+        }
+
+        .app {
+            width: 100%;
+            max-width: 420px;
+            padding: 22px
+        }
+
+        @media(min-width:768px) {
+            body {
+                display: none
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 22px;
+            padding: 24px;
+            margin-bottom: 22px;
+            animation: fade .4s ease;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .6)
+        }
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 22px
+        }
+
+        p {
+            margin: 0 0 18px;
+            opacity: .7;
+            font-size: 14px
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #00f7ff, #0066ff);
+            color: #000;
+            font-size: 16px;
+            font-weight: 600
+        }
+
+        .toggle-row {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 18px
+        }
+
+        .toggle {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            background: #111827;
+            text-align: center
+        }
+
+        .toggle.active {
+            background: #00f7ff;
+            color: #000
+        }
+
+        .counter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px
+        }
+
+        .counter button {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%
+        }
+
+        .file-box {
+            width: 100%;
+            padding: 29px;
+            border-radius: 14px;
+            background: #0f172a;
+            border: 1px dashed rgba(255, 255, 255, .25);
+            text-align: center;
+            cursor: pointer
+        }
+
+        .file-box.active {
+            border-style: solid;
+            color: #00f7ff
+        }
+
+        .price {
+            text-align: center;
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #00f7ff
+        }
+
+        .preview-img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 8px
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        /* PROFILE ICON (PAGE TOP RIGHT) */
+
+        .profile-box {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 10
+        }
+
+        .profile-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #111827;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 2px solid #00f7ff
+        }
+
+        .profile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .profile-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #00f7ff
+        }
+
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 13, 20, .55);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, .25);
+            border-top: 4px solid #00f7ff;
+            animation: spin 1s linear infinite
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(15px)
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- PROFILE ICON -->
+
+    <div class="profile-box">
+        <a href="/profile">
+            <div class="profile-icon">
+
+                {% if photo %}
+                <img src="/static/profile_pics/{{ photo }}">
+                {% else %}
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+                </svg>
+                {% endif %}
+
+            </div>
+        </a>
+    </div>
+
+
+    <div class="app">
+
+        <!-- STEP 2 -->
+        <div class="card" id="step2">
+
+            <h2>Upload Document</h2>
+
+            <input type="file" id="pdf" accept="application/pdf" hidden>
+
+            <div class="file-box" onclick="document.getElementById('pdf').click()">
+                📄
+                <span id="fileText">Upload PDF</span>
+            </div>
+
+            <br>
+
+            <button onclick="upload()">Next</button>
+
+        </div>
+
+
+        <!-- STEP 3 -->
+        <div class="card hidden" id="step3">
+
+            <h2>Print Settings</h2>
+
+            <p>B&W or Colour</p>
+
+            <div class="toggle-row">
+                <div class="toggle active" onclick="setBW('bw',this)">B & W</div>
+                <div class="toggle" onclick="setBW('color',this)">Colour</div>
+            </div>
+
+            <p>Single or Double side</p>
+
+            <div class="toggle-row">
+                <div class="toggle active" onclick="setSide('single',this)">Single</div>
+                <div class="toggle" onclick="setSide('double',this)">Double</div>
+            </div>
+
+            <p>Copies</p>
+
+            <div class="counter">
+                <button onclick="chg(-1)">−</button>
+                <span id="copies">1</span>
+                <button onclick="chg(1)">+</button>
+            </div>
+
+            <div class="price">₹ <span id="amount">0.00</span></div>
+
+            <button onclick="goCustom()">Customize Pages</button>
+
+            <br><br>
+
+            <button onclick="payNormal()">Proceed to Payment</button>
+
+        </div>
+
+
+        <!-- STEP 4 CUSTOM -->
+        <div class="card hidden" id="step4">
+
+            <h2>Customize Pages</h2>
+
+            <div id="pageList"></div>
+
+            <div class="price">₹ <span id="customAmount">0.00</span></div>
+
+            <button onclick="payCustom()">Proceed to Payment</button>
+
+        </div>
+
+
+        <!-- SUCCESS -->
+        <div class="card hidden success" id="success">
+
+            <h2>Payment Successful 🎉</h2>
+
+            <p>Use this code at the printer kiosk</p>
+
+            <div class="code" id="printCode">------</div>
+
+            <p>We’ve also sent this code to your email.</p>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        let jobId, pages = 0, copies = 1, bw = 'bw', side = 'single'
+        let pageImages = []
+        let pageModes = {}
+        history.replaceState({ step: 2 }, "", "#step2")
+        function go(n) {
+
+            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
+            document.getElementById('step' + n).classList.remove('hidden')
+
+            history.pushState({ step: n }, "", "#step" + n)
+
+        }
+
+        function upload() {
+
+            if (!pdf.files.length) {
+                alert("Please upload a PDF file first")
+                return
+            }
+
+            let fd = new FormData()
+            fd.append("pdf", pdf.files[0])
+
+            showLoader()
+
+            fetch("/upload", { method: "POST", body: fd })
+                .then(r => r.json())
+                .then(d => {
+                    hideLoader()
+                    jobId = d.job_id
+                    pages = d.pages
+                    pageImages = d.images
+                    go(3)
+                    calc()
+                })
+
+        }
+
+        function chg(v) {
+
+            copies = Math.max(1, copies + v)
+            document.getElementById("copies").innerText = copies
+            calc()
+
+        }
+
+        function setBW(v, e) {
+            bw = v
+            e.parentElement.querySelectorAll('.toggle').forEach(t => t.classList.remove('active'))
+            e.classList.add('active')
+            calc()
+        }
+
+        function setSide(v, e) {
+            side = v
+            e.parentElement.querySelectorAll('.toggle').forEach(t => t.classList.remove('active'))
+            e.classList.add('active')
+            calc()
+        }
+
+
+        function calc() {
+
+            let rate = bw === 'bw' ? 1.5 : 4.5
+            let ep = side === 'double' ? Math.ceil(pages / 2) : pages
+            let amt = ep * copies * rate
+
+            amount.innerText = amt.toFixed(2)
+
+        }
+
+        function goCustom() {
+
+            go(4)
+
+            let container = document.getElementById("pageList")
+            container.innerHTML = ""
+
+            pageModes = {}
+
+            pageImages.forEach((img, i) => {
+
+                pageModes[i + 1] = 'bw'
+
+                container.innerHTML += `
+<img src="${img}" class="preview-img">
+<div class="toggle-row">
+<div class="toggle active" onclick="setPage(${i + 1},'bw',this)">B & W</div>
+<div class="toggle" onclick="setPage(${i + 1},'color',this)">Colour</div>
+</div>
+`
+
+            })
+
+            calculateCustom()
+
+        }
+
+        function setPage(page, mode, el) {
+
+            pageModes[page] = mode
+
+            el.parentElement.querySelectorAll('.toggle').forEach(t => t.classList.remove('active'))
+
+            el.classList.add('active')
+
+            calculateCustom()
+
+        }
+
+        function calculateCustom() {
+
+            let total = 0
+
+            for (let p in pageModes) {
+                total += pageModes[p] === 'bw' ? 1.5 : 4.5
+            }
+
+            total *= copies
+
+            customAmount.innerText = total.toFixed(2)
+
+        }
+
+        function payNormal() {
+            startPayment("normal", {}, amount.innerText)
+        }
+
+        function payCustom() {
+            startPayment("custom", pageModes, customAmount.innerText)
+        }
+
+        function startPayment(mode, pagesObj, amount) {
+
+            fetch("/create-order", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: amount })
+            })
+                .then(r => r.json())
+                .then(data => {
+
+                    let options = {
+                        key: data.key,
+                        amount: data.amount,
+                        order_id: data.order_id,
+                        handler: function () {
+
+                            fetch("/payment-success", {
+                                method: "POST",
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    job_id: jobId,
+                                    amount: amount,
+                                    bw: bw,
+                                    copies: copies,
+                                    mode: mode,
+                                    pages: pagesObj
+                                })
+                            })
+                                .then(r => r.json())
+                                .then(d => {
+
+                                    document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
+                                    success.classList.remove('hidden')
+                                    printCode.innerText = d.code
+
+                                })
+
+                        }
+                    }
+
+                    new Razorpay(options).open()
+
+                })
+
+        }
+
+        function showLoader() {
+            loader.classList.remove("hidden")
+        }
+
+        function hideLoader() {
+            loader.classList.add("hidden")
+        }
+
+        /* SHOW FILE NAME AFTER SELECT */
+
+        document.getElementById("pdf").addEventListener("change", function () {
+
+            const file = this.files[0]
+
+            if (!file) return
+
+            document.getElementById("fileText").innerText = file.name
+            document.querySelector(".file-box").classList.add("active")
+
+        })
+        window.onpopstate = function (event) {
+
+            if (event.state && event.state.step) {
+
+                let step = event.state.step
+
+                document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
+                document.getElementById('step' + step).classList.remove('hidden')
+
+            }
+
+        }
+        window.addEventListener("popstate", function (e) {
+
+            if (e.state && e.state.step) {
+                let step = e.state.step
+
+                document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
+                document.getElementById('step' + step).classList.remove('hidden')
+            }
+
+        })
+    </script>
+
+
+    <div id="loader" class="loader hidden">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+</body>
+
+</html>
