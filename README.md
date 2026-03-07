@@ -1,3 +1,5 @@
+
+Gemini said
 🖨️ PrintOnTime – Smart Printing Kiosk System
 <p align="center">
 <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" alt="Status">
@@ -6,31 +8,51 @@
 <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite" alt="SQLite">
 </p>
 
-🌟 Overview:
-            PrintOnTime is a mobile-first document printing platform that allows users to upload PDF files, customize printing options, pay online, and print documents instantly at a kiosk using a secure code. This system removes the need for USB drives, cables, or computer access at printing centers. Users simply upload documents from their phone, pay online, and collect the printed document from a printer kiosk.
+🌟 Overview
+Mobile-First Platform: Allows users to upload PDFs and customize printing from their phones.
+
+Hardware-Free Access: Eliminates the need for USB drives or cables at printing centers.
+
+Secure Pickup: Instant printing at kiosks using a secure, unique code.
 
 🚀 Features
-🔐 User Account System:
-         User signup and login with secure password hashing.
-         Profile Management: Profile page, picture upload, and account deletion.
-         Tracking: Logout functionality and full print history tracking.
-📄 Document Upload
-         PDF Support: Automatic page count detection and file validation.
-         UI: Mobile-friendly upload interface.
-🎨 Print Customization
-         Global Options: Print Mode (B&W/Color), Page Sides (Single/Double), and Copies.
-         Per-Page Customization: Assign different modes for each page (e.g., Page 1: B&W, Page 2: Color).
-💳 Online Payment & Notifications
-        Razorpay Integration: Secure online payment, auto-order creation, and verification.
+🔐 User Account System
+Authentication: User signup and login with secure password hashing.
 
-Email System: Automated delivery of a 6-digit print code and instructions upon successful payment.
+Profile Management: Dedicated profile pages with picture upload and account deletion options.
+
+Activity Logs: Logout functionality and complete print history tracking.
+
+📄 Document Upload
+PDF Intelligence: Automatic page count detection and file validation.
+
+Optimized UI: Clean, mobile-friendly interface for seamless document selection.
+
+🎨 Print Customization
+Global Settings: Toggle between Black & White/Color, Single/Double-sided, and number of copies.
+
+Granular Control: Per-page customization (e.g., Page 1 in B&W, Page 2 in Color).
+
+💳 Online Payment & Notifications
+Gateway Integration: Secure transactions via Razorpay with automatic order verification.
+
+Instant Delivery: Automated email containing a 6-digit print code and pickup instructions.
 
 🏗️ Kiosk Printing System
-Physical Kiosk: User enters code → System validates → Document prints.
+Verification: User enters the 6-digit code for system validation.
 
-Protections: Prevents duplicate printing, tracks jobs, and converts color to grayscale when required.
+Automatic Printing: Documents print instantly upon successful code entry.
+
+Safety Measures:
+
+Prevents duplicate printing of the same job.
+
+Tracks job status in real-time.
+
+Automatically converts color pages to grayscale when necessary.
 
 🏗️ System Architecture
+
 graph TD
     A[Mobile User] -->|Upload PDF| B(Flask Web Server)
     B --> C[(SQLite Database)]
@@ -42,62 +64,79 @@ graph TD
     H -->|Success| I[Instant Print]
 
 📂 Project Structure
+app.py: Core backend logic and Flask route definitions.
 
-PrintOnTime/
-├── app.py                 # Backend logic & Flask routes
-├── kiosk.db               # Primary database
-├── kiosk_done.db          # Printed jobs record
-├── uploads/               # PDF file storage
-├── static/                # CSS, JS, and profile_pics/
-├── templates/             # index, login, signup, profile, history, kiosk.html
-├── .env                   # Environment variables
-└── README.md              # Project documentation
+kiosk.db: Primary system database.
+
+kiosk_done.db: Historical records of completed print jobs.
+
+uploads/: Secure storage for uploaded PDF files.
+
+static/: Assets including CSS, JS, and user profile pictures.
+
+templates/: HTML views for login, signup, profile, history, and kiosk.
+
+.env: Configuration for environment variables.
 
 🧰 Technologies Used
-Flask – Backend framework
-SQLite – Database management
-Razorpay – Online payment gateway
-Ghostscript – PDF colour to grayscale conversion
-PyPDF2 – PDF page counting
-Flask-Mail – Email notifications
-HTML / CSS / JavaScript – Frontend interface
-Jinja2 – Template rendering
+Framework: Flask (Backend) & Jinja2 (Rendering).
+
+Database: SQLite.
+
+Payment: Razorpay API.
+
+Processing: Ghostscript (Grayscale) & PyPDF2 (Page Counting).
+
+Communication: Flask-Mail (Email Notifications).
+
+Frontend: HTML, CSS, and JavaScript.
 
 ⚙️ Installation Guide
-1. Clone & Dependencies
-    git clone https://github.com/17-karthick-03/Tap-N-Print.git
-    cd folder_name
-    pip install flask werkzeug PyPDF2 pdf2image razorpay flask-mail python-dotenv qrcode pillow
-2. Required System Tools
-    Ghostscript (PDF grayscale conversion):
-        Linux: sudo apt install ghostscript
-        Windows: https://ghostscript.com/releases/
+Clone & Dependencies
+git clone https://github.com/17-karthick-03/Tap-N-Print.git
+cd folder_name
+pip install flask werkzeug PyPDF2 pdf2image razorpay flask-mail python-dotenv qrcode pillow
+Required System Tools
 
-    Poppler (Required for pdf2image):
-        Linux: sudo apt install poppler-utils
-        Windows: https://github.com/oschwartz10612/poppler-windows/releases
-3. Environment Variables
-    Create a .env file in the root:
-       RAZORPAY_KEY_ID=your_key
-       RAZORPAY_KEY_SECRET=your_secret
-       MAIL_USERNAME=your_email@gmail.com
-       MAIL_PASSWORD=your_email_app_password
-4. Run Server
-      python app.py
+Ghostscript:
 
+Linux: sudo apt install ghostscript
+
+Windows: https://ghostscript.com/releases/
+
+Poppler:
+
+Linux: sudo apt install poppler-utils
+
+Windows: https://github.com/oschwartz10612/poppler-windows/releases
+
+Environment Variables
+
+Create a .env file in the root directory:
+
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_KEY_SECRET=your_secret
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_email_app_password
+Run Server
+
+python app.py
 📱 User Workflow
-1. Login/Signup to the platform.
-2. Upload a PDF document.
-3. Configure specific print settings (sides, copies, color).
-4. Pay securely via Razorpay.
-5. Receive a unique 6-digit print code via email.
-6. Visit Kiosk and enter the code to print instantly.
+Auth: Sign up or log in to the platform.
 
+Upload: Select and upload your PDF document.
 
-👨‍💻 Author
-Karthick S
-B.E Student @ SRM Valliammai Engineering College
-Naveen Kumar S
-B.E Student @ SRM Valliammai Engineering College
-Nikhil B
-B.E Student @ SRM Valliammai Engineering College
+Configure: Set copies, color mode, and specific page settings.
+
+Pay: Complete the secure Razorpay transaction.
+
+Notify: Check your email for the unique 6-digit print code.
+
+Print: Visit the physical kiosk and enter your code to collect the document.
+
+👨‍💻 Authors
+Karthick S: B.E Student @ SRM Valliammai Engineering College
+
+Naveen Kumar S: B.E Student @ SRM Valliammai Engineering College
+
+Nikhil B: B.E Student @ SRM Valliammai Engineering College
