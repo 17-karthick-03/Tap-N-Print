@@ -6,10 +6,9 @@
 <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite" alt="SQLite">
 </p>
 
-🌟 Overview
-PrintOnTime is a mobile-first document printing platform that allows users to upload PDF files, customize printing options, pay online, and print documents instantly at a kiosk using a secure code.
+🌟 Overview:
 
-This system removes the need for USB drives, cables, or computer access at printing centers. Users simply upload documents from their phone, pay online, and collect the printed document from a printer kiosk.
+    PrintOnTime is a mobile-first document printing platform that allows users to upload PDF files, customize printing options, pay online, and print documents instantly at a kiosk using a secure code. This system removes the need for USB drives, cables, or computer access at printing centers. Users simply upload documents from their phone, pay online, and collect the printed document from a printer kiosk.
 
 🚀 Features
 🔐 User Account System
@@ -74,8 +73,8 @@ Jinja2 – Template rendering
 
 ⚙️ Installation Guide
 1. Clone & Dependencies
-    git clone https://github.com/yourusername/printontime.git
-    cd printontime
+    git clone https://github.com/17-karthick-03/Tap-N-Print.git
+    cd folder_name
     pip install flask werkzeug PyPDF2 pdf2image razorpay flask-mail python-dotenv qrcode pillow
 2. Required System Tools
     Ghostscript (PDF grayscale conversion):
