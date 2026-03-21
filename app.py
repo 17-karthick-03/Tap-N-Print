@@ -157,7 +157,6 @@ def store_otp(email, purpose):
     ).isoformat()
 
     with sqlite3.connect("kiosk.db") as c:
-        # Replace any existing OTP for this email+purpose
         c.execute("DELETE FROM otps WHERE email=? AND purpose=?", (email, purpose))
         c.execute(
             "INSERT INTO otps (email, otp, purpose, expires_at) VALUES (?,?,?,?)",
@@ -251,7 +250,6 @@ def generate_receipt_pdf(name, code, file_name, total_pages, pages_label,
         ("WORDWRAP",       (0,0),  (-1,-1), "CJK"),
     ]))
 
-    # Use A4 usable width (170mm) for QR centering — fixes overlap
     usable_width = 170 * mm
     qr_table = Table([[qr_image]], colWidths=[usable_width])
     qr_table.setStyle(TableStyle([
@@ -305,7 +303,6 @@ def init_db():
             is_verified INTEGER DEFAULT 0
         )""")
 
-        # Safely add is_verified to existing DB (won't fail if column exists)
         try:
             c.execute("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 0")
         except Exception:
@@ -337,7 +334,6 @@ def init_db():
             end_page   INTEGER
         )""")
 
-        # Safely add start_page / end_page to existing DB
         for col in ("start_page INTEGER", "end_page INTEGER"):
             try:
                 c.execute(f"ALTER TABLE jobs ADD COLUMN {col}")
@@ -377,7 +373,6 @@ def signup():
         email    = request.form["email"]
         password = generate_password_hash(request.form["password"])
 
-        # Check duplicate
         with sqlite3.connect("kiosk.db") as c:
             existing = c.execute(
                 "SELECT id FROM users WHERE email=?", (email,)
@@ -386,18 +381,15 @@ def signup():
         if existing:
             return render_template("signup.html", error="Email already registered.")
 
-        # Save user (unverified)
         with sqlite3.connect("kiosk.db") as c:
             c.execute(
                 "INSERT INTO users (name,email,password,is_verified) VALUES (?,?,?,0)",
                 (name, email, password)
             )
 
-        # Send OTP
         otp = store_otp(email, "verify")
         send_otp_email(email, otp, purpose="verify")
 
-        # Keep email in session for OTP page
         session["pending_verify_email"] = email
         return redirect("/verify-otp")
 
@@ -464,7 +456,6 @@ def login():
             error = "Invalid email or password."
 
         elif not user[1]:
-            # Not verified — resend OTP and redirect
             otp = store_otp(email, "verify")
             send_otp_email(email, otp, purpose="verify")
             session["pending_verify_email"] = email
@@ -533,7 +524,6 @@ def reset_otp_page():
 
             if result == "ok":
                 session.pop("pending_reset_email", None)
-                # Mark as reset-verified so profile page shows popup
                 session["user_email"]    = email
                 session["reset_redirect"] = True
                 session.permanent         = True
@@ -662,6 +652,9 @@ ALLOWED_EXTENSIONS = {
     "jpg":  "image", "jpeg": "image", "png": "image", "webp": "image"
 }
 
+IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+
+
 def convert_to_pdf(src_path, jid, ext):
     """
     Convert any supported file to a PDF saved in UPLOAD_FOLDER.
@@ -676,17 +669,35 @@ def convert_to_pdf(src_path, jid, ext):
         img.save(pdf_path, "PDF", resolution=150)
 
     elif ext in ("doc", "docx"):
-        # LibreOffice must be installed: apt install libreoffice
         subprocess.run([
             "libreoffice", "--headless", "--convert-to", "pdf",
             "--outdir", UPLOAD_FOLDER, src_path
         ], check=True)
-        # LibreOffice names output file as <original_name>.pdf
         base = os.path.splitext(os.path.basename(src_path))[0]
         lo_out = os.path.join(UPLOAD_FOLDER, base + ".pdf")
         os.rename(lo_out, pdf_path)
 
     return pdf_path
+
+
+def merge_images_to_pdf(image_paths, output_path):
+    """
+    Merge multiple images into a single PDF (one image per page).
+    """
+    from PIL import Image as PILImage
+
+    pil_images = []
+    for path in image_paths:
+        img = PILImage.open(path).convert("RGB")
+        pil_images.append(img)
+
+    if not pil_images:
+        raise ValueError("No images to merge")
+
+    # Save all images as a multi-page PDF
+    first = pil_images[0]
+    rest  = pil_images[1:]
+    first.save(output_path, "PDF", resolution=150, save_all=True, append_images=rest)
 
 
 @app.route("/upload", methods=["POST"])
@@ -701,29 +712,61 @@ def upload():
             "SELECT name FROM users WHERE email=?", (email,)
         ).fetchone()[0]
 
-    f   = request.files["file"]
+    files = request.files.getlist("file")
+    if not files or all(f.filename == "" for f in files):
+        return jsonify({"error": "No file selected"}), 400
+
     jid = str(uuid.uuid4())
 
-    original_filename = secure_filename(f.filename)
-    ext = original_filename.rsplit(".", 1)[-1].lower() if "." in original_filename else ""
+    # ── Determine upload type ──────────────────────────────────────────────
+    # Get extensions of all uploaded files
+    exts = []
+    for f in files:
+        fname = secure_filename(f.filename)
+        ext   = fname.rsplit(".", 1)[-1].lower() if "." in fname else ""
+        exts.append(ext)
 
-    if ext not in ALLOWED_EXTENSIONS:
-        return jsonify({"error": "Unsupported file type."}), 400
+    # Validate all extensions
+    for ext in exts:
+        if ext not in ALLOWED_EXTENSIONS:
+            return jsonify({"error": f"Unsupported file type: .{ext}"}), 400
 
-    # Save original
-    orig_path = os.path.join(UPLOAD_FOLDER, jid + "_" + original_filename)
-    f.save(orig_path)
+    # If any file is a PDF, only allow a single file
+    has_pdf = any(e == "pdf" for e in exts)
+    if has_pdf and len(files) > 1:
+        return jsonify({"error": "Only one PDF can be uploaded at a time. For multiple pages, upload images instead."}), 400
 
-    # Convert to PDF if needed
-    if ext == "pdf":
+    # ── Single PDF ─────────────────────────────────────────────────────────
+    if has_pdf:
+        f    = files[0]
+        ext  = exts[0]
+        orig_filename = secure_filename(f.filename)
+        orig_path     = os.path.join(UPLOAD_FOLDER, jid + "_" + orig_filename)
+        f.save(orig_path)
         pdf_path = orig_path
-    else:
-        try:
-            pdf_path = convert_to_pdf(orig_path, jid, ext)
-        except Exception as e:
-            return jsonify({"error": f"Conversion failed: {str(e)}"}), 500
 
-    # Count pages & generate previews
+    # ── One or more images → merge into PDF ────────────────────────────────
+    else:
+        saved_paths = []
+        for i, f in enumerate(files):
+            orig_filename = secure_filename(f.filename)
+            save_path     = os.path.join(UPLOAD_FOLDER, f"{jid}_img{i}_{orig_filename}")
+            f.save(save_path)
+            saved_paths.append(save_path)
+
+        pdf_path = os.path.join(UPLOAD_FOLDER, jid + "_merged.pdf")
+        try:
+            merge_images_to_pdf(saved_paths, pdf_path)
+        except Exception as e:
+            return jsonify({"error": f"Image merge failed: {str(e)}"}), 500
+
+        # Use the first filename as display name (or "images" if multiple)
+        if len(saved_paths) == 1:
+            orig_filename = secure_filename(files[0].filename)
+        else:
+            orig_filename = f"{len(files)}_images_merged.pdf"
+
+    # ── Count pages & generate colour previews ─────────────────────────────
     reader      = PdfReader(pdf_path)
     total_pages = len(reader.pages)
     images      = convert_from_path(pdf_path, dpi=100)
@@ -734,13 +777,27 @@ def upload():
         img.save(os.path.join(PREVIEW_FOLDER, img_name), "JPEG")
         image_urls.append("/static/previews/" + img_name)
 
+    # ── Generate grayscale previews ────────────────────────────────────────
+    gray_image_urls = []
+    for i, img in enumerate(images):
+        gray_img  = img.convert("L").convert("RGB")   # grayscale via Pillow
+        gray_name = f"{jid}_page_{i+1}_gray.jpg"
+        gray_img.save(os.path.join(PREVIEW_FOLDER, gray_name), "JPEG")
+        gray_image_urls.append("/static/previews/" + gray_name)
+
+    # ── Store job ──────────────────────────────────────────────────────────
     with sqlite3.connect("kiosk.db") as c:
         c.execute("""
         INSERT INTO jobs (id,name,email,file,pages,amount,code,status,bw,copies,mode)
         VALUES (?,?,?,?,?,?,?,?,?,?,?)
         """, (jid, name, email, pdf_path, total_pages, 0, "", "UPLOADED", "bw", 1, "normal"))
 
-    return jsonify({"job_id": jid, "pages": total_pages, "images": image_urls})
+    return jsonify({
+        "job_id":       jid,
+        "pages":        total_pages,
+        "images":       image_urls,       # colour previews
+        "gray_images":  gray_image_urls,  # grayscale previews (pre-rendered)
+    })
 
 
 # ═══════════════════════════════════════════════
@@ -834,19 +891,16 @@ def payment_success():
 </head>
 <body style="margin:0;padding:0;background-color:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;">
 
-  <!-- Outer wrapper -->
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
          style="background-color:#f0f4f8;padding:40px 0;">
     <tr>
       <td align="center" style="padding:0 16px;">
 
-        <!-- Main card -->
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0"
                style="max-width:560px;width:100%;background-color:#ffffff;
                       border-radius:20px;overflow:hidden;
                       box-shadow:0 4px 24px rgba(0,0,0,0.10);">
 
-          <!-- HEADER -->
           <tr>
             <td align="center"
                 style="background:linear-gradient(135deg,#1a1a2e,#16213e);
@@ -858,7 +912,6 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- GREETING -->
           <tr>
             <td style="padding:32px 40px 20px;">
               <p style="margin:0 0 8px;font-size:20px;font-weight:700;
@@ -870,7 +923,6 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- PRINT CODE BOX -->
           <tr>
             <td style="padding:0 40px 20px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -896,7 +948,6 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- QR CODE -->
           <tr>
             <td align="center" style="padding:0 40px 28px;">
               <p style="margin:0 0 14px;font-size:12px;color:#aaaaaa;
@@ -910,7 +961,6 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- DIVIDER -->
           <tr>
             <td style="padding:0 40px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -919,7 +969,6 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- RECEIPT SECTION LABEL -->
           <tr>
             <td style="padding:24px 40px 12px;">
               <div style="font-size:11px;font-weight:700;letter-spacing:2.5px;
@@ -929,72 +978,50 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- RECEIPT TABLE -->
           <tr>
             <td style="padding:0 40px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
                      style="font-size:14px;border-collapse:collapse;">
 
                 <tr style="background-color:#ffffff;">
-                  <td style="padding:11px 0;color:#888888;
-                             border-bottom:1px solid #f5f5f5;width:50%;">File</td>
-                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;
-                             text-align:right;border-bottom:1px solid #f5f5f5;
-                             word-break:break-all;">{file_name}</td>
+                  <td style="padding:11px 0;color:#888888;border-bottom:1px solid #f5f5f5;width:50%;">File</td>
+                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;text-align:right;border-bottom:1px solid #f5f5f5;word-break:break-all;">{file_name}</td>
                 </tr>
 
                 <tr style="background-color:#f8fafc;">
-                  <td style="padding:11px 0;color:#888888;
-                             border-bottom:1px solid #f5f5f5;">Total Pages</td>
-                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;
-                             text-align:right;border-bottom:1px solid #f5f5f5;">{total_pages}</td>
+                  <td style="padding:11px 0;color:#888888;border-bottom:1px solid #f5f5f5;">Total Pages</td>
+                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;text-align:right;border-bottom:1px solid #f5f5f5;">{total_pages}</td>
                 </tr>
 
                 <tr style="background-color:#ffffff;">
-                  <td style="padding:11px 0;color:#888888;
-                             border-bottom:1px solid #f5f5f5;">Pages Printed</td>
-                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;
-                             text-align:right;border-bottom:1px solid #f5f5f5;">{pages_label}</td>
+                  <td style="padding:11px 0;color:#888888;border-bottom:1px solid #f5f5f5;">Pages Printed</td>
+                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;text-align:right;border-bottom:1px solid #f5f5f5;">{pages_label}</td>
                 </tr>
 
                 <tr style="background-color:#f8fafc;">
-                  <td style="padding:11px 0;color:#888888;
-                             border-bottom:1px solid #f5f5f5;">Print Mode</td>
-                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;
-                             text-align:right;border-bottom:1px solid #f5f5f5;">{mode_label}</td>
+                  <td style="padding:11px 0;color:#888888;border-bottom:1px solid #f5f5f5;">Print Mode</td>
+                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;text-align:right;border-bottom:1px solid #f5f5f5;">{mode_label}</td>
                 </tr>
 
                 <tr style="background-color:#ffffff;">
-                  <td style="padding:11px 0;color:#888888;
-                             border-bottom:1px solid #f5f5f5;">Copies</td>
-                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;
-                             text-align:right;border-bottom:1px solid #f5f5f5;">{copies}</td>
+                  <td style="padding:11px 0;color:#888888;border-bottom:1px solid #f5f5f5;">Copies</td>
+                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;text-align:right;border-bottom:1px solid #f5f5f5;">{copies}</td>
                 </tr>
 
                 <tr style="background-color:#f8fafc;">
-                  <td style="padding:11px 0;color:#888888;
-                             border-bottom:1px solid #e0e0e0;">Date &amp; Time</td>
-                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;
-                             text-align:right;border-bottom:1px solid #e0e0e0;">{paid_at}</td>
+                  <td style="padding:11px 0;color:#888888;border-bottom:1px solid #e0e0e0;">Date &amp; Time</td>
+                  <td style="padding:11px 0;color:#1a1a2e;font-weight:600;text-align:right;border-bottom:1px solid #e0e0e0;">{paid_at}</td>
                 </tr>
 
-                <!-- Amount row -->
                 <tr style="background-color:#e8fffe;">
-                  <td style="padding:16px 0 12px;font-size:15px;
-                             font-weight:700;color:#1a1a2e;">
-                    Amount Paid
-                  </td>
-                  <td style="padding:16px 0 12px;font-size:22px;font-weight:900;
-                             color:#00a0aa;text-align:right;">
-                    Rs {amount}
-                  </td>
+                  <td style="padding:16px 0 12px;font-size:15px;font-weight:700;color:#1a1a2e;">Amount Paid</td>
+                  <td style="padding:16px 0 12px;font-size:22px;font-weight:900;color:#00a0aa;text-align:right;">Rs {amount}</td>
                 </tr>
 
               </table>
             </td>
           </tr>
 
-          <!-- PDF NOTE -->
           <tr>
             <td style="padding:16px 40px 24px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -1008,11 +1035,9 @@ def payment_success():
             </td>
           </tr>
 
-          <!-- FOOTER -->
           <tr>
             <td align="center"
-                style="background-color:#f8fafc;padding:20px 40px;
-                       border-top:1px solid #eeeeee;">
+                style="background-color:#f8fafc;padding:20px 40px;border-top:1px solid #eeeeee;">
               <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.8;">
                 This is an automated email from
                 <strong style="color:#555555;">PrintOnTime</strong>.<br>
@@ -1022,12 +1047,10 @@ def payment_success():
           </tr>
 
         </table>
-        <!-- /Main card -->
 
       </td>
     </tr>
   </table>
-  <!-- /Outer wrapper -->
 
 </body>
 </html>"""
@@ -1112,11 +1135,3 @@ def kiosk_print():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-"""
-RAZORPAY_KEY_ID=rzp_test_S7RIvhRbgFY3M3
-RAZORPAY_KEY_SECRET=30Zfl7Za3q5smZYMM2BarWQT
-
-MAIL_USERNAME=17.karthick.03@gmail.com
-MAIL_PASSWORD=lkkkaolicylelbze
-"""

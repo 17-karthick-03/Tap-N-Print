@@ -1,319 +1,380 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP - PrintOnTime</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Inter", system-ui, sans-serif;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify OTP - PrintOnTime</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Inter", system-ui, sans-serif;
-    }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #0a0d14;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #0a0d14;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+      .card {
+        width: 100%;
+        max-width: 380px;
+        margin: 24px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 22px;
+        padding: 32px 28px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        animation: fade 0.4s ease;
+      }
 
-    .card {
-      width: 100%;
-      max-width: 380px;
-      margin: 24px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 22px;
-      padding: 32px 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      animation: fade .4s ease;
-    }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+      .brand {
+        text-align: center;
+        margin-bottom: 28px;
+      }
 
-    .brand { text-align: center; margin-bottom: 28px; }
+      .brand-name {
+        font-size: 22px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00f7ff, #0066ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+      }
 
-    .brand-name {
-      font-size: 22px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #00f7ff, #0066ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: 1px;
-    }
+      .brand-sub {
+        font-size: 11px;
+        opacity: 0.4;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
 
-    .brand-sub {
-      font-size: 11px;
-      opacity: .4;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
+      .otp-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(0, 247, 255, 0.1);
+        border: 2px solid rgba(0, 247, 255, 0.25);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 28px;
+        margin: 0 auto 20px;
+      }
 
-    .otp-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(0, 247, 255, 0.1);
-      border: 2px solid rgba(0, 247, 255, 0.25);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 28px;
-      margin: 0 auto 20px;
-    }
+      h2 {
+        margin: 0 0 6px;
+        font-size: 20px;
+        text-align: center;
+      }
 
-    h2 { margin: 0 0 6px; font-size: 20px; text-align: center; }
+      .subtitle {
+        font-size: 13px;
+        opacity: 0.5;
+        text-align: center;
+        margin-bottom: 6px;
+        line-height: 1.6;
+      }
 
-    .subtitle {
-      font-size: 13px;
-      opacity: .5;
-      text-align: center;
-      margin-bottom: 6px;
-      line-height: 1.6;
-    }
+      .email-tag {
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #00f7ff;
+        margin-bottom: 24px;
+      }
 
-    .email-tag {
-      text-align: center;
-      font-size: 13px;
-      font-weight: 600;
-      color: #00f7ff;
-      margin-bottom: 24px;
-    }
+      .otp-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
 
-    .otp-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
+      .otp-row input {
+        width: 46px;
+        height: 54px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        border-radius: 12px;
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        background: #0f172a;
+        color: #fff;
+        outline: none;
+        transition: 0.2s;
+        caret-color: #00f7ff;
+      }
 
-    .otp-row input {
-      width: 46px;
-      height: 54px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: 700;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
-      background: #0f172a;
-      color: #fff;
-      outline: none;
-      transition: .2s;
-      caret-color: #00f7ff;
-    }
+      .otp-row input:focus {
+        border-color: #00f7ff;
+        box-shadow: 0 0 0 2px rgba(0, 247, 255, 0.2);
+      }
 
-    .otp-row input:focus {
-      border-color: #00f7ff;
-      box-shadow: 0 0 0 2px rgba(0, 247, 255, 0.2);
-    }
+      .error-box {
+        background: rgba(255, 77, 77, 0.12);
+        border: 1px solid rgba(255, 77, 77, 0.3);
+        border-radius: 12px;
+        padding: 11px 14px;
+        font-size: 13px;
+        color: #ff6b6b;
+        margin-bottom: 16px;
+        text-align: center;
+      }
 
-    .error-box {
-      background: rgba(255, 77, 77, 0.12);
-      border: 1px solid rgba(255, 77, 77, 0.3);
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-size: 13px;
-      color: #ff6b6b;
-      margin-bottom: 16px;
-      text-align: center;
-    }
+      .success-box {
+        background: rgba(0, 247, 255, 0.08);
+        border: 1px solid rgba(0, 247, 255, 0.25);
+        border-radius: 12px;
+        padding: 11px 14px;
+        font-size: 13px;
+        color: #00f7ff;
+        margin-bottom: 16px;
+        text-align: center;
+      }
 
-    .success-box {
-      background: rgba(0, 247, 255, 0.08);
-      border: 1px solid rgba(0, 247, 255, 0.25);
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-size: 13px;
-      color: #00f7ff;
-      margin-bottom: 16px;
-      text-align: center;
-    }
+      button.primary {
+        width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+        border: none;
+        background: linear-gradient(135deg, #00f7ff, #0066ff);
+        color: #000;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+        margin-bottom: 12px;
+      }
 
-    button.primary {
-      width: 100%;
-      padding: 14px;
-      border-radius: 16px;
-      border: none;
-      background: linear-gradient(135deg, #00f7ff, #0066ff);
-      color: #000;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      transition: .2s;
-      margin-bottom: 12px;
-    }
+      button.primary:active {
+        transform: scale(0.97);
+      }
 
-    button.primary:active { transform: scale(.97); }
+      .timer {
+        text-align: center;
+        font-size: 13px;
+        opacity: 0.5;
+        margin-bottom: 12px;
+      }
 
-    .timer {
-      text-align: center;
-      font-size: 13px;
-      opacity: .5;
-      margin-bottom: 12px;
-    }
+      .timer span {
+        color: #00f7ff;
+        font-weight: 600;
+        opacity: 1;
+      }
 
-    .timer span {
-      color: #00f7ff;
-      font-weight: 600;
-      opacity: 1;
-    }
+      button.resend {
+        width: 100%;
+        padding: 13px;
+        border-radius: 16px;
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        background: transparent;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+      }
 
-    button.resend {
-      width: 100%;
-      padding: 13px;
-      border-radius: 16px;
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
-      background: transparent;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: .2s;
-    }
+      button.resend:hover {
+        border-color: #00f7ff;
+        color: #00f7ff;
+      }
+      button.resend:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
 
-    button.resend:hover  { border-color: #00f7ff; color: #00f7ff; }
-    button.resend:disabled { opacity: .3; cursor: not-allowed; }
+      @media (min-width: 768px) {
+        body {
+          display: none;
+        }
+      }
+    </style>
+  </head>
 
-    @media(min-width:768px) { body { display: none; } }
-  </style>
-</head>
-
-<body>
-  <div class="card">
-
-    <div class="brand">
-      <div class="brand-name">PrintOnTime</div>
-      <div class="brand-sub">Smart Print Kiosk</div>
-    </div>
-
-    <div class="otp-icon">🔐</div>
-
-    <h2>Verify OTP</h2>
-    <p class="subtitle">
-      {% if purpose == "reset" %}
-      Enter the OTP sent to confirm your identity
-      {% else %}
-      Enter the OTP sent to verify your email
-      {% endif %}
-    </p>
-    <div class="email-tag">{{ email }}</div>
-
-    {% if error %}
-    <div class="error-box">⚠ {{ error }}</div>
-    {% endif %}
-
-    {% if success %}
-    <div class="success-box">✅ {{ success }}</div>
-    {% endif %}
-
-    <!-- Verify form — data-no-loader prevents auto trigger, we call showLoader() manually -->
-    <form method="POST" id="otpForm" data-no-loader>
-      <input type="hidden" name="action" value="verify">
-
-      <div class="otp-row">
-        <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" pattern="[0-9]">
-        <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" pattern="[0-9]">
-        <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" pattern="[0-9]">
-        <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" pattern="[0-9]">
-        <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" pattern="[0-9]">
-        <input type="text" maxlength="1" class="otp-digit" inputmode="numeric" pattern="[0-9]">
+  <body>
+    <div class="card">
+      <div class="brand">
+        <div class="brand-name">PrintOnTime</div>
+        <div class="brand-sub">Smart Print Kiosk</div>
       </div>
 
-      <input type="hidden" name="otp" id="otpHidden">
+      <div class="otp-icon">🔐</div>
 
-      <button type="submit" class="primary" onclick="submitOtp()">Verify →</button>
-    </form>
+      <h2>Verify OTP</h2>
+      <p class="subtitle">
+        {% if purpose == "reset" %} Enter the OTP sent to confirm your identity
+        {% else %} Enter the OTP sent to verify your email {% endif %}
+      </p>
+      <div class="email-tag">{{ email }}</div>
 
-    <div class="timer">
-      Code expires in <span id="countdown">05:00</span>
+      {% if error %}
+      <div class="error-box">⚠ {{ error }}</div>
+      {% endif %} {% if success %}
+      <div class="success-box">✅ {{ success }}</div>
+      {% endif %}
+
+      <!-- Verify form — data-no-loader prevents auto trigger, we call showLoader() manually -->
+      <form method="POST" id="otpForm" data-no-loader>
+        <input type="hidden" name="action" value="verify" />
+
+        <div class="otp-row">
+          <input
+            type="text"
+            maxlength="1"
+            class="otp-digit"
+            inputmode="numeric"
+            pattern="[0-9]"
+          />
+          <input
+            type="text"
+            maxlength="1"
+            class="otp-digit"
+            inputmode="numeric"
+            pattern="[0-9]"
+          />
+          <input
+            type="text"
+            maxlength="1"
+            class="otp-digit"
+            inputmode="numeric"
+            pattern="[0-9]"
+          />
+          <input
+            type="text"
+            maxlength="1"
+            class="otp-digit"
+            inputmode="numeric"
+            pattern="[0-9]"
+          />
+          <input
+            type="text"
+            maxlength="1"
+            class="otp-digit"
+            inputmode="numeric"
+            pattern="[0-9]"
+          />
+          <input
+            type="text"
+            maxlength="1"
+            class="otp-digit"
+            inputmode="numeric"
+            pattern="[0-9]"
+          />
+        </div>
+
+        <input type="hidden" name="otp" id="otpHidden" />
+
+        <button type="submit" class="primary" onclick="submitOtp()">
+          Verify →
+        </button>
+      </form>
+
+      <div class="timer">Code expires in <span id="countdown">05:00</span></div>
+
+      <!-- Resend form — data-no-loader, we show loader manually -->
+      <form method="POST" id="resendForm" data-no-loader>
+        <input type="hidden" name="action" value="resend" />
+        <button
+          type="submit"
+          class="resend"
+          id="resendBtn"
+          disabled
+          onclick="showLoader()"
+        >
+          Resend OTP
+        </button>
+      </form>
     </div>
 
-    <!-- Resend form — data-no-loader, we show loader manually -->
-    <form method="POST" id="resendForm" data-no-loader>
-      <input type="hidden" name="action" value="resend">
-      <button type="submit" class="resend" id="resendBtn" disabled
-              onclick="showLoader()">
-        Resend OTP
-      </button>
-    </form>
+    <script>
+      // Auto-focus & auto-advance OTP boxes
+      const digits = document.querySelectorAll(".otp-digit");
 
-  </div>
+      digits.forEach((input, i) => {
+        input.addEventListener("input", () => {
+          input.value = input.value.replace(/\D/g, "");
+          if (input.value && i < digits.length - 1) {
+            digits[i + 1].focus();
+          }
+        });
 
-  <script>
-    // Auto-focus & auto-advance OTP boxes
-    const digits = document.querySelectorAll(".otp-digit")
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && !input.value && i > 0) {
+            digits[i - 1].focus();
+          }
+        });
 
-    digits.forEach((input, i) => {
-      input.addEventListener("input", () => {
-        input.value = input.value.replace(/\D/g, "")
-        if (input.value && i < digits.length - 1) {
-          digits[i + 1].focus()
-        }
-      })
+        input.addEventListener("paste", (e) => {
+          e.preventDefault();
+          const pasted = (e.clipboardData || window.clipboardData)
+            .getData("text")
+            .replace(/\D/g, "")
+            .slice(0, 6);
+          pasted.split("").forEach((ch, j) => {
+            if (digits[j]) digits[j].value = ch;
+          });
+          const next = Math.min(pasted.length, digits.length - 1);
+          digits[next].focus();
+        });
+      });
 
-      input.addEventListener("keydown", e => {
-        if (e.key === "Backspace" && !input.value && i > 0) {
-          digits[i - 1].focus()
-        }
-      })
-
-      input.addEventListener("paste", e => {
-        e.preventDefault()
-        const pasted = (e.clipboardData || window.clipboardData)
-          .getData("text").replace(/\D/g, "").slice(0, 6)
-        pasted.split("").forEach((ch, j) => {
-          if (digits[j]) digits[j].value = ch
-        })
-        const next = Math.min(pasted.length, digits.length - 1)
-        digits[next].focus()
-      })
-    })
-
-    function submitOtp() {
-      // Combine digits into hidden field, then show loader before submit
-      document.getElementById("otpHidden").value =
-        [...digits].map(d => d.value).join("")
-      showLoader()
-    }
-
-    // Countdown timer — 5 minutes
-    let seconds = 5 * 60
-    const countdownEl = document.getElementById("countdown")
-    const resendBtn   = document.getElementById("resendBtn")
-
-    const timer = setInterval(() => {
-      seconds--
-      if (seconds <= 0) {
-        clearInterval(timer)
-        countdownEl.textContent = "Expired"
-        countdownEl.style.color = "#ff6b6b"
-        resendBtn.disabled = false
-        return
+      function submitOtp() {
+        // Combine digits into hidden field, then show loader before submit
+        document.getElementById("otpHidden").value = [...digits]
+          .map((d) => d.value)
+          .join("");
+        showLoader();
       }
-      const m = Math.floor(seconds / 60).toString().padStart(2, "0")
-      const s = (seconds % 60).toString().padStart(2, "0")
-      countdownEl.textContent = `${m}:${s}`
 
-      // Enable resend after 60 seconds
-      if (seconds <= (5 * 60 - 60)) {
-        resendBtn.disabled = false
-      }
-    }, 1000)
+      // Countdown timer — 5 minutes
+      let seconds = 5 * 60;
+      const countdownEl = document.getElementById("countdown");
+      const resendBtn = document.getElementById("resendBtn");
 
-    // Focus first box on load
-    digits[0].focus()
-  </script>
+      const timer = setInterval(() => {
+        seconds--;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          countdownEl.textContent = "Expired";
+          countdownEl.style.color = "#ff6b6b";
+          resendBtn.disabled = false;
+          return;
+        }
+        const m = Math.floor(seconds / 60)
+          .toString()
+          .padStart(2, "0");
+        const s = (seconds % 60).toString().padStart(2, "0");
+        countdownEl.textContent = `${m}:${s}`;
 
-  {% include 'loader.html' %}
+        // Enable resend after 60 seconds
+        if (seconds <= 5 * 60 - 60) {
+          resendBtn.disabled = false;
+        }
+      }, 1000);
 
-</body>
+      // Focus first box on load
+      digits[0].focus();
+    </script>
 
+    {% include 'loader.html' %}
+  </body>
 </html>

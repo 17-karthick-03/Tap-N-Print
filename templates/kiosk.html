@@ -1,219 +1,1060 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Print Kiosk</title>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PrintOnTime — Kiosk</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-<style>
-body{
-  margin:0;
-  background:#0a0d14;
-  color:#fff;
-  font-family:system-ui;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  overflow:hidden;
-}
+      body {
+        background: #0a0d14;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
 
-.card{
-  width:520px;
-  background:#111827;
-  border-radius:28px;
-  padding:32px;
-  text-align:center;
-  box-shadow:0 30px 80px rgba(0,0,0,0.6);
-}
+      .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: rgba(17, 24, 39, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 36px;
+        backdrop-filter: blur(12px);
+        z-index: 100;
+      }
+      .topbar-brand {
+        font-size: 20px;
+        font-weight: 800;
+        color: #00f7ff;
+        letter-spacing: 1.5px;
+      }
+      .topbar-sub {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.35);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .topbar-time {
+        font-size: 22px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        font-variant-numeric: tabular-nums;
+      }
 
-h2{
-  font-size:32px;
-  margin-bottom:20px;
-}
+      .card {
+        background: #111827;
+        border-radius: 32px;
+        padding: 44px 48px;
+        width: 560px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+      }
+      .card.hidden {
+        display: none;
+      }
 
-.code{
-  font-size:42px;
-  letter-spacing:8px;
-  margin:20px 0 30px;
-}
+      .screen-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .screen-sub {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 32px;
+      }
 
-.pad{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-}
+      .mode-tabs {
+        display: flex;
+        background: #1f2937;
+        border-radius: 18px;
+        padding: 5px;
+        gap: 4px;
+        margin-bottom: 32px;
+      }
+      .mode-tab {
+        flex: 1;
+        padding: 14px;
+        border-radius: 13px;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .mode-tab.active {
+        background: #0f172a;
+        color: #00f7ff;
+        border: 1.5px solid rgba(0, 247, 255, 0.25);
+      }
 
-.pad button{
-  padding:26px;
-  font-size:26px;
-  border-radius:18px;
-  background:#1f2937;
-  color:#fff;
-  border:none;
-}
+      .qr-panel {
+        display: none;
+      }
+      .qr-panel.active {
+        display: block;
+      }
 
-button.primary{
-  margin-top:24px;
-  width:100%;
-  padding:20px;
-  border-radius:20px;
-  background:#00f7ff;
-  color:#000;
-  font-size:22px;
-  font-weight:700;
-}
+      .qr-viewport {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #000;
+        position: relative;
+        margin-bottom: 14px;
+      }
+      #qr-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
 
-.hidden{display:none;}
+      .scan-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+      .scan-frame {
+        width: 55%;
+        aspect-ratio: 1;
+        position: relative;
+      }
+      .scan-frame::before,
+      .scan-frame::after,
+      .scan-frame span::before,
+      .scan-frame span::after {
+        content: "";
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-color: #00f7ff;
+        border-style: solid;
+      }
+      .scan-frame::before {
+        top: 0;
+        left: 0;
+        border-width: 3px 0 0 3px;
+        border-radius: 4px 0 0 0;
+      }
+      .scan-frame::after {
+        top: 0;
+        right: 0;
+        border-width: 3px 3px 0 0;
+        border-radius: 0 4px 0 0;
+      }
+      .scan-frame span::before {
+        bottom: 0;
+        left: 0;
+        border-width: 0 0 3px 3px;
+        border-radius: 0 0 0 4px;
+      }
+      .scan-frame span::after {
+        bottom: 0;
+        right: 0;
+        border-width: 0 3px 3px 0;
+        border-radius: 0 0 4px 0;
+      }
 
-.details{
-  text-align:left;
-  margin-top:20px;
-  font-size:20px;
-  line-height:1.8;
-}
+      .scan-line {
+        position: absolute;
+        left: 6%;
+        right: 6%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00f7ff, transparent);
+        animation: scanMove 2s ease-in-out infinite;
+        top: 10%;
+      }
+      @keyframes scanMove {
+        0% {
+          top: 10%;
+          opacity: 0.8;
+        }
+        50% {
+          top: 85%;
+          opacity: 1;
+        }
+        100% {
+          top: 10%;
+          opacity: 0.8;
+        }
+      }
 
-.details span{
-  color:#00f7ff;
-  font-weight:600;
-}
+      .scan-status {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 8px;
+        min-height: 20px;
+      }
+      .scan-status.ok {
+        color: #4ade80;
+      }
+      .scan-status.error {
+        color: #f87171;
+      }
 
-#timer{
-  position:fixed;
-  top:18px;
-  right:22px;
-  font-size:18px;
-  opacity:0.8;
-}
-</style>
-</head>
+      .qr-error {
+        background: rgba(255, 77, 77, 0.12);
+        border: 1px solid rgba(255, 77, 77, 0.3);
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 13px;
+        color: #ff8888;
+        margin-bottom: 12px;
+        display: none;
+      }
 
-<body onclick="requestFullScreen()">
+      .manual-panel {
+        display: none;
+      }
+      .manual-panel.active {
+        display: block;
+      }
 
-<div id="timer" class="hidden">Refreshing in 10s</div>
+      .code-display {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .code-digit {
+        width: 54px;
+        height: 68px;
+        background: #0f172a;
+        border-radius: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        font-weight: 800;
+        color: #fff;
+        transition: border-color 0.15s;
+        font-variant-numeric: tabular-nums;
+      }
+      .code-digit.filled {
+        border-color: rgba(0, 247, 255, 0.4);
+        color: #00f7ff;
+      }
+      .code-digit.active-cursor {
+        border-color: #00f7ff;
+        box-shadow: 0 0 0 3px rgba(0, 247, 255, 0.12);
+      }
 
-<!-- ENTER CODE -->
-<div class="card" id="enter">
-  <h2>Enter Print Code</h2>
-  <div class="code" id="code">______</div>
+      .pad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .pad-btn {
+        padding: 22px;
+        font-size: 24px;
+        font-weight: 700;
+        border-radius: 16px;
+        background: #1f2937;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .pad-btn:active {
+        background: #2d3748;
+        transform: scale(0.96);
+      }
+      .pad-btn.del-btn {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 20px;
+      }
+      .pad-btn.confirm-btn {
+        background: rgba(0, 247, 255, 0.12);
+        color: #00f7ff;
+        border-color: rgba(0, 247, 255, 0.2);
+        font-size: 20px;
+      }
+      .pad-btn.confirm-btn:active {
+        background: rgba(0, 247, 255, 0.22);
+      }
 
-  <div class="pad">
-    <button onclick="add(1)">1</button><button onclick="add(2)">2</button><button onclick="add(3)">3</button>
-    <button onclick="add(4)">4</button><button onclick="add(5)">5</button><button onclick="add(6)">6</button>
-    <button onclick="add(7)">7</button><button onclick="add(8)">8</button><button onclick="add(9)">9</button>
-    <button onclick="del()">⌫</button><button onclick="add(0)">0</button><button onclick="check()">✔</button>
-  </div>
-</div>
+      .btn-primary {
+        width: 100%;
+        padding: 20px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #00f7ff, #0066ff);
+        color: #000;
+        font-size: 18px;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        margin-top: 8px;
+        transition:
+          opacity 0.2s,
+          transform 0.1s;
+        letter-spacing: 0.3px;
+      }
+      .btn-primary:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+      .btn-primary:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
 
-<!-- CONFIRM -->
-<div class="card hidden" id="confirm">
-  <h2>Confirm Print</h2>
+      .btn-secondary {
+        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 15px;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.15s;
+      }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
 
-  <div class="details">
-    <div>Name : <span id="d_name"></span></div>
-    <div>File Name : <span id="d_file"></span></div>
-    <div>Colour Mode : <span id="d_bw"></span></div>
-    <div>Copies : <span id="d_copies"></span></div>
-  </div>
+      .job-card {
+        background: #0f172a;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        overflow: hidden;
+        margin-bottom: 24px;
+        text-align: left;
+      }
+      .job-card-header {
+        background: rgba(0, 247, 255, 0.08);
+        border-bottom: 1px solid rgba(0, 247, 255, 0.12);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .job-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba(0, 247, 255, 0.12);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      .job-name {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .job-file {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.45);
+        margin-top: 2px;
+        word-break: break-all;
+      }
+      .job-rows {
+        padding: 8px 0;
+      }
+      .job-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 13px 20px;
+        font-size: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .job-row:last-child {
+        border-bottom: none;
+      }
+      .job-label {
+        color: rgba(255, 255, 255, 0.45);
+      }
+      .job-val {
+        font-weight: 600;
+        color: #fff;
+      }
 
-  <button class="primary" onclick="printJob()">Proceed to Print</button>
-</div>
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .badge-bw {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .badge-color {
+        background: rgba(255, 107, 107, 0.15);
+        color: #ff8888;
+      }
 
-<!-- MESSAGE -->
-<div class="card hidden" id="msg">
-  <h2 id="msgText"></h2>
-</div>
+      .msg-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
+        display: block;
+      }
+      .msg-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .msg-sub {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.45);
+        line-height: 1.6;
+        margin-bottom: 0;
+      }
+      .msg-success .msg-title {
+        color: #4ade80;
+      }
+      .msg-error .msg-title {
+        color: #f87171;
+      }
+      .msg-warning .msg-title {
+        color: #fbbf24;
+      }
 
-<script>
-let entered="", currentCode="", refreshTimer;
+      .refresh-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        z-index: 200;
+        display: none;
+      }
+      .refresh-progress {
+        height: 100%;
+        background: #00f7ff;
+        transition: width 1s linear;
+        width: 100%;
+      }
+      .refresh-label {
+        position: fixed;
+        bottom: 12px;
+        right: 20px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.3);
+        display: none;
+      }
 
-/* Fullscreen */
-function requestFullScreen(){
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
-}
+      .hidden {
+        display: none !important;
+      }
 
-/* Keypad */
-function add(n){
-  if(entered.length<6){
-    entered+=n;
-    update();
-  }
-}
-function del(){
-  entered=entered.slice(0,-1);
-  update();
-}
-function update(){
-  document.getElementById("code").innerText =
-    entered.padEnd(6,"_");
-}
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .card {
+        animation: fadeIn 0.3s ease;
+      }
+    </style>
+  </head>
 
-/* Validate */
-function check(){
-  if(entered.length!==6) return;
+  <body onclick="requestFullScreen()">
+    <div class="topbar">
+      <div>
+        <div class="topbar-brand">PrintOnTime</div>
+        <div class="topbar-sub">Smart Print Kiosk</div>
+      </div>
+      <div class="topbar-time" id="clock">--:--</div>
+    </div>
 
-  fetch("/kiosk/validate",{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({code:entered})
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.status==="DONE"){
-      showMsg("You already received your printout.");
-    }else if(d.status==="INVALID"){
-      showMsg("Invalid print code.");
-    }else{
-      currentCode=entered;
-      document.getElementById("enter").classList.add("hidden");
-      document.getElementById("confirm").classList.remove("hidden");
+    <!-- SCREEN 1: ENTER CODE -->
+    <div class="card" id="screen-enter">
+      <div class="screen-title">Collect Your Printout</div>
+      <div class="screen-sub">
+        Scan your QR code or enter the 6-digit print code
+      </div>
 
-      document.getElementById("d_name").innerText = d.name;
-      document.getElementById("d_file").innerText = d.file.split("/").pop();
-      document.getElementById("d_bw").innerText = d.bw === "bw" ? "B&W" : "Colour";
-      document.getElementById("d_copies").innerText = d.copies;
-    }
-  });
-}
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-qr" onclick="switchMode('qr')">
+          &#9638; Scan QR
+        </button>
+        <button class="mode-tab" id="tab-manual" onclick="switchMode('manual')">
+          &#9997; Enter Code
+        </button>
+      </div>
 
-/* Print */
-function printJob(){
-  fetch("/kiosk/print",{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({code:currentCode})
-  })
-  .then(()=>{
-    showMsg("Printing started…");
-    startRefresh();
-  });
-}
+      <!-- QR MODE -->
+      <div class="qr-panel active" id="panel-qr">
+        <div class="qr-viewport">
+          <video id="qr-video" autoplay muted playsinline></video>
+          <div class="scan-overlay">
+            <div class="scan-frame">
+              <span></span>
+              <div class="scan-line"></div>
+            </div>
+          </div>
+        </div>
+        <div class="scan-status" id="scan-status">Initialising camera…</div>
+        <div class="qr-error" id="qr-error"></div>
+      </div>
 
-/* Message + Auto Refresh */
-function showMsg(text){
-  document.getElementById("enter").classList.add("hidden");
-  document.getElementById("confirm").classList.add("hidden");
-  document.getElementById("msg").classList.remove("hidden");
-  document.getElementById("msgText").innerText = text;
-}
+      <!-- MANUAL MODE -->
+      <div class="manual-panel" id="panel-manual">
+        <div class="code-display" id="code-display">
+          <div class="code-digit active-cursor" id="d0">_</div>
+          <div class="code-digit" id="d1">_</div>
+          <div class="code-digit" id="d2">_</div>
+          <div class="code-digit" id="d3">_</div>
+          <div class="code-digit" id="d4">_</div>
+          <div class="code-digit" id="d5">_</div>
+        </div>
+        <div class="pad">
+          <button class="pad-btn" onclick="add(1)">1</button>
+          <button class="pad-btn" onclick="add(2)">2</button>
+          <button class="pad-btn" onclick="add(3)">3</button>
+          <button class="pad-btn" onclick="add(4)">4</button>
+          <button class="pad-btn" onclick="add(5)">5</button>
+          <button class="pad-btn" onclick="add(6)">6</button>
+          <button class="pad-btn" onclick="add(7)">7</button>
+          <button class="pad-btn" onclick="add(8)">8</button>
+          <button class="pad-btn" onclick="add(9)">9</button>
+          <button class="pad-btn del-btn" onclick="del()">&#9003;</button>
+          <button class="pad-btn" onclick="add(0)">0</button>
+          <button class="pad-btn confirm-btn" onclick="checkCode()">
+            &#10004;
+          </button>
+        </div>
+      </div>
+    </div>
 
-function startRefresh(){
-  let sec = 10;
-  const t = document.getElementById("timer");
-  t.classList.remove("hidden");
-  t.innerText = `Refreshing in ${sec}s`;
+    <!-- SCREEN 2: CONFIRM -->
+    <div class="card hidden" id="screen-confirm">
+      <div class="screen-title">Review &amp; Print</div>
+      <div class="screen-sub">Confirm your job details before printing</div>
+      <div class="job-card">
+        <div class="job-card-header">
+          <div class="job-icon">&#128196;</div>
+          <div>
+            <div class="job-name" id="d-name"></div>
+            <div class="job-file" id="d-file"></div>
+          </div>
+        </div>
+        <div class="job-rows">
+          <div class="job-row">
+            <span class="job-label">Colour Mode</span>
+            <span class="job-val" id="d-bw"></span>
+          </div>
+          <div class="job-row">
+            <span class="job-label">Copies</span>
+            <span class="job-val" id="d-copies"></span>
+          </div>
+          <div class="job-row">
+            <span class="job-label">Print Mode</span>
+            <span class="job-val" id="d-mode"></span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" id="print-btn" onclick="printJob()">
+        Start Printing &#8594;
+      </button>
+      <button class="btn-secondary" onclick="resetToEnter()">Cancel</button>
+    </div>
 
-  refreshTimer = setInterval(()=>{
-    sec--;
-    t.innerText = `Refreshing in ${sec}s`;
-    if(sec<=0){
-      clearInterval(refreshTimer);
-      location.reload();
-    }
-  },1000);
-}
-</script>
+    <!-- SCREEN 3: MESSAGE -->
+    <div class="card hidden" id="screen-msg">
+      <span class="msg-icon" id="msg-icon">&#9989;</span>
+      <div class="msg-title" id="msg-title"></div>
+      <div class="msg-sub" id="msg-sub"></div>
+    </div>
 
-</body>
+    <div class="refresh-bar" id="refresh-bar">
+      <div class="refresh-progress" id="refresh-progress"></div>
+    </div>
+    <div class="refresh-label" id="refresh-label"></div>
+
+    <!-- jsQR fallback for browsers without BarcodeDetector -->
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <script>
+      /* ══ STATE ══ */
+      let entered = "";
+      let currentCode = "";
+      let currentMode = "qr";
+      let qrStream = null;
+      let qrAnimFrame = null;
+      let qrActive = false;
+      let qrLastScan = 0;
+      let refreshTimer = null;
+
+      // Reused off-screen canvas
+      const _canvas = document.createElement("canvas");
+      const _ctx = _canvas.getContext("2d", { willReadFrequently: true });
+
+      // Native BarcodeDetector (Chrome 83+, Edge 83+, Samsung Internet 13+)
+      let barcodeDetector = null;
+      if ("BarcodeDetector" in window) {
+        try {
+          barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
+        } catch (e) {
+          barcodeDetector = null;
+        }
+      }
+
+      /* ══ CLOCK ══ */
+      function updateClock() {
+        const now = new Date();
+        document.getElementById("clock").innerText =
+          String(now.getHours()).padStart(2, "0") +
+          ":" +
+          String(now.getMinutes()).padStart(2, "0");
+      }
+      updateClock();
+      setInterval(updateClock, 10000);
+
+      /* ══ FULLSCREEN ══ */
+      function requestFullScreen() {
+        if (!document.fullscreenElement)
+          document.documentElement.requestFullscreen().catch(() => {});
+      }
+
+      /* ══ SCREEN SWITCHING ══ */
+      function showScreen(id) {
+        ["screen-enter", "screen-confirm", "screen-msg"].forEach((s) =>
+          document.getElementById(s).classList.toggle("hidden", s !== id),
+        );
+      }
+
+      /* ══ MODE TABS ══ */
+      function switchMode(mode) {
+        currentMode = mode;
+        document
+          .getElementById("tab-qr")
+          .classList.toggle("active", mode === "qr");
+        document
+          .getElementById("tab-manual")
+          .classList.toggle("active", mode === "manual");
+        document
+          .getElementById("panel-qr")
+          .classList.toggle("active", mode === "qr");
+        document
+          .getElementById("panel-manual")
+          .classList.toggle("active", mode === "manual");
+
+        if (mode === "qr") {
+          startQRCamera();
+        } else {
+          stopQRCamera();
+          resetCode();
+        }
+      }
+
+      /* ══ CAMERA ══ */
+      function startQRCamera() {
+        const video = document.getElementById("qr-video");
+        const errEl = document.getElementById("qr-error");
+        const status = document.getElementById("scan-status");
+
+        errEl.style.display = "none";
+        status.className = "scan-status";
+        status.innerText = "Starting camera…";
+
+        stopQRCamera(); // clear any previous stream
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          errEl.innerText =
+            "Camera not supported on this device. Please use manual entry.";
+          errEl.style.display = "block";
+          status.innerText = "";
+          return;
+        }
+
+        navigator.mediaDevices
+          .getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+          })
+          .then((stream) => {
+            qrStream = stream;
+            qrActive = true;
+            video.srcObject = stream;
+
+            video.addEventListener("loadedmetadata", function onMeta() {
+              video.removeEventListener("loadedmetadata", onMeta);
+              video
+                .play()
+                .then(() => {
+                  status.innerText = barcodeDetector
+                    ? "Ready — point camera at QR code"
+                    : "Ready — point camera at QR code (jsQR mode)";
+
+                  if (barcodeDetector) {
+                    tickBarcodeDetector(video);
+                  } else {
+                    tickJsQR(video);
+                  }
+                })
+                .catch((e) => {
+                  status.className = "scan-status error";
+                  status.innerText = "Could not start video. Try refreshing.";
+                });
+            });
+          })
+          .catch((err) => {
+            errEl.innerText =
+              "Camera access denied. Please allow camera or switch to manual entry.";
+            errEl.style.display = "block";
+            status.innerText = "";
+          });
+      }
+
+      function stopQRCamera() {
+        qrActive = false;
+        if (qrAnimFrame) {
+          cancelAnimationFrame(qrAnimFrame);
+          qrAnimFrame = null;
+        }
+        if (qrStream) {
+          qrStream.getTracks().forEach((t) => t.stop());
+          qrStream = null;
+        }
+      }
+
+      /* ── BarcodeDetector path (Chrome/Edge — native, fast) ── */
+      function tickBarcodeDetector(video) {
+        if (!qrActive) return;
+
+        barcodeDetector
+          .detect(video)
+          .then((codes) => {
+            if (!qrActive) return;
+            for (const c of codes) {
+              const extracted = extractCode(c.rawValue);
+              if (extracted && Date.now() - qrLastScan > 2000) {
+                qrLastScan = Date.now();
+                onCodeFound(extracted);
+                return;
+              }
+            }
+            qrAnimFrame = requestAnimationFrame(() =>
+              tickBarcodeDetector(video),
+            );
+          })
+          .catch(() => {
+            if (qrActive)
+              qrAnimFrame = requestAnimationFrame(() =>
+                tickBarcodeDetector(video),
+              );
+          });
+      }
+
+      /* ── jsQR path (Firefox, Safari, older Chrome) ── */
+      let _jsqrThrottle = 0;
+      function tickJsQR(video) {
+        if (!qrActive) return;
+
+        const now = Date.now();
+        // Run jsQR at max ~15fps to avoid pegging the CPU
+        if (
+          now - _jsqrThrottle >= 66 &&
+          video.readyState >= 2 &&
+          video.videoWidth > 0
+        ) {
+          _jsqrThrottle = now;
+          _canvas.width = video.videoWidth;
+          _canvas.height = video.videoHeight;
+          _ctx.drawImage(video, 0, 0);
+
+          if (typeof jsQR === "function") {
+            const px = _ctx.getImageData(0, 0, _canvas.width, _canvas.height);
+            const res = jsQR(px.data, px.width, px.height, {
+              inversionAttempts: "attemptBoth",
+            });
+            if (res && res.data) {
+              const extracted = extractCode(res.data);
+              if (extracted && now - qrLastScan > 2000) {
+                qrLastScan = now;
+                onCodeFound(extracted);
+                return;
+              }
+            }
+          }
+        }
+
+        qrAnimFrame = requestAnimationFrame(() => tickJsQR(video));
+      }
+
+      /* ── Common code-found handler ── */
+      function onCodeFound(code) {
+        const status = document.getElementById("scan-status");
+        status.className = "scan-status ok";
+        status.innerText = "QR code detected! Validating…";
+        stopQRCamera();
+        validateCode(code);
+      }
+
+      /* ── Extract 6-digit code from any QR payload ── */
+      function extractCode(raw) {
+        raw = (raw || "").trim();
+        if (/^\d{6}$/.test(raw)) return raw;
+        try {
+          const url = new URL(raw);
+          const parts = url.pathname.split("/").filter(Boolean);
+          const last = parts[parts.length - 1];
+          if (/^\d{6}$/.test(last)) return last;
+        } catch (_) {}
+        const m = raw.match(/\b(\d{6})\b/);
+        return m ? m[1] : null;
+      }
+
+      /* ══ MANUAL CODE ENTRY ══ */
+      function resetCode() {
+        entered = "";
+        updateDigits();
+      }
+
+      function add(n) {
+        if (entered.length < 6) {
+          entered += String(n);
+          updateDigits();
+          if (entered.length === 6) setTimeout(checkCode, 120);
+        }
+      }
+
+      function del() {
+        entered = entered.slice(0, -1);
+        updateDigits();
+      }
+
+      function updateDigits() {
+        for (let i = 0; i < 6; i++) {
+          const el = document.getElementById("d" + i);
+          const ch = entered[i];
+          el.innerText = ch || "_";
+          el.classList.toggle("filled", !!ch);
+          el.classList.toggle(
+            "active-cursor",
+            i === entered.length && entered.length < 6,
+          );
+        }
+      }
+
+      function checkCode() {
+        if (entered.length !== 6) return;
+        validateCode(entered);
+      }
+
+      /* ══ VALIDATE ══ */
+      function validateCode(code) {
+        fetch("/kiosk/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.status === "DONE") {
+              showMessage(
+                "warning",
+                "&#9888;&#65039;",
+                "Already Collected",
+                "This print code has already been used.\nYour printout was collected earlier.",
+              );
+              startRefresh(8);
+            } else if (d.status === "INVALID") {
+              if (currentMode === "qr") {
+                const errEl = document.getElementById("qr-error");
+                const status = document.getElementById("scan-status");
+                errEl.innerText =
+                  "QR code not recognised. Please try again or switch to manual entry.";
+                errEl.style.display = "block";
+                status.className = "scan-status error";
+                status.innerText = "Invalid code";
+                setTimeout(() => {
+                  errEl.style.display = "none";
+                  startQRCamera();
+                }, 3000);
+              } else {
+                shakeDigits();
+                setTimeout(resetCode, 600);
+              }
+            } else {
+              currentCode = code;
+              showConfirm(d);
+            }
+          })
+          .catch(() => {
+            showMessage(
+              "error",
+              "&#10060;",
+              "Connection Error",
+              "Could not reach the server.\nPlease try again or contact staff.",
+            );
+            startRefresh(5);
+          });
+      }
+
+      function shakeDigits() {
+        const display = document.getElementById("code-display");
+        let count = 0;
+        const shake = setInterval(() => {
+          display.style.transform =
+            count % 2 === 0 ? "translateX(8px)" : "translateX(-8px)";
+          count++;
+          if (count > 5) {
+            clearInterval(shake);
+            display.style.transform = "";
+          }
+        }, 70);
+      }
+
+      /* ══ CONFIRM SCREEN ══ */
+      function showConfirm(d) {
+        document.getElementById("d-name").innerText = d.name;
+
+        // Strip UUID prefix from filename
+        let fname = d.file.split("/").pop();
+        fname = fname.split("_").slice(1).join("_") || fname;
+        document.getElementById("d-file").innerText = fname;
+
+        const bwEl = document.getElementById("d-bw");
+        bwEl.innerHTML =
+          d.bw === "bw"
+            ? '<span class="badge badge-bw">&#9679; Black &amp; White</span>'
+            : '<span class="badge badge-color">&#127912; Colour</span>';
+
+        const modeMap = { normal: "Standard", custom: "Per-page custom" };
+        document.getElementById("d-mode").innerText = modeMap[d.mode] || d.mode;
+        document.getElementById("d-copies").innerText =
+          d.copies + (d.copies > 1 ? " copies" : " copy");
+
+        document.getElementById("print-btn").disabled = false;
+        document.getElementById("print-btn").innerText =
+          "Start Printing \u2192";
+
+        showScreen("screen-confirm");
+      }
+
+      /* ══ PRINT ══ */
+      function printJob() {
+        const btn = document.getElementById("print-btn");
+        btn.disabled = true;
+        btn.innerText = "Sending to printer…";
+
+        fetch("/kiosk/print", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: currentCode }),
+        })
+          .then(() => {
+            showMessage(
+              "success",
+              "&#9989;",
+              "Printing Started!",
+              "Your document is being printed.\nPlease collect it from the printer tray.",
+            );
+            startRefresh(10);
+          })
+          .catch(() => {
+            showMessage(
+              "error",
+              "&#10060;",
+              "Print Failed",
+              "Something went wrong sending to the printer.\nPlease contact staff for assistance.",
+            );
+            startRefresh(8);
+          });
+      }
+
+      /* ══ MESSAGE SCREEN ══ */
+      function showMessage(type, icon, title, sub) {
+        document.getElementById("msg-icon").innerHTML = icon;
+        document.getElementById("msg-title").innerText = title;
+        document.getElementById("msg-sub").innerText = sub;
+        document.getElementById("screen-msg").className = "card msg-" + type;
+        showScreen("screen-msg");
+      }
+
+      /* ══ RESET ══ */
+      function resetToEnter() {
+        currentCode = "";
+        resetCode();
+        showScreen("screen-enter");
+        if (currentMode === "qr") startQRCamera();
+      }
+
+      /* ══ REFRESH BAR ══ */
+      function startRefresh(seconds) {
+        const bar = document.getElementById("refresh-bar");
+        const progress = document.getElementById("refresh-progress");
+        const label = document.getElementById("refresh-label");
+
+        bar.style.display = "block";
+        label.style.display = "block";
+        progress.style.transition = "none";
+        progress.style.width = "100%";
+        progress.getBoundingClientRect(); // force reflow
+        progress.style.transition = "width " + seconds + "s linear";
+        progress.style.width = "0%";
+
+        let sec = seconds;
+        label.innerText = "Resetting in " + sec + "s";
+
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshTimer = setInterval(() => {
+          sec--;
+          label.innerText = "Resetting in " + sec + "s";
+          if (sec <= 0) {
+            clearInterval(refreshTimer);
+            location.reload();
+          }
+        }, 1000);
+      }
+
+      /* ══ INIT ══ */
+      window.addEventListener("DOMContentLoaded", () => {
+        startQRCamera();
+      });
+    </script>
+  </body>
 </html>
