@@ -1114,3 +1114,11 @@ def kiosk_print():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+"""
+RAZORPAY_KEY_ID=rzp_test_S7RIvhRbgFY3M3
+RAZORPAY_KEY_SECRET=30Zfl7Za3q5smZYMM2BarWQT
+
+MAIL_USERNAME=17.karthick.03@gmail.com
+MAIL_PASSWORD=lkkkaolicylelbze
+"""
