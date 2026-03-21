@@ -9,7 +9,6 @@ import datetime
 import subprocess
 import base64
 from io import BytesIO
-
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
 from pdf2image import convert_from_path
@@ -17,7 +16,6 @@ import razorpay
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import qrcode
-
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.platypus import (
