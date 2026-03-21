@@ -1,0 +1,84 @@
+<!-- ═══ PAGE LOADER OVERLAY ═══
+     Add this file to every page just before closing body tag.
+     It auto-triggers on every link click and form submit.
+     Call showLoader() / hideLoader() manually for AJAX calls.
+-->
+
+<div id="pageLoader" style="
+  display:none;
+  position:fixed; inset:0; z-index:99999;
+  background:rgba(10,13,20,0.6);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+">
+  <div style="
+    width:52px; height:52px; border-radius:50%;
+    border:4px solid rgba(255,255,255,0.12);
+    border-top:4px solid #00f7ff;
+    animation:loaderSpin 0.9s linear infinite;
+  "></div>
+  <p style="
+    margin:16px 0 0;
+    font-size:13px; font-family:'Inter',sans-serif;
+    color:rgba(255,255,255,0.5); letter-spacing:0.5px;
+  ">Loading…</p>
+</div>
+
+<style>
+  @keyframes loaderSpin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+  (function () {
+    function showLoader() {
+      var el = document.getElementById("pageLoader");
+      el.style.display = "flex";
+    }
+
+    function hideLoader() {
+      var el = document.getElementById("pageLoader");
+      el.style.display = "none";
+    }
+
+    // Expose globally so AJAX code can call them
+    window.showLoader = showLoader;
+    window.hideLoader = hideLoader;
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      // Trigger on every <a> click (except anchors, new tabs, js: links)
+      document.addEventListener("click", function (e) {
+        var el = e.target.closest("a");
+        if (!el) return;
+        var href = el.getAttribute("href");
+        if (!href) return;
+        if (href.startsWith("#"))    return;  // anchor links
+        if (href.startsWith("javascript")) return;
+        if (el.target === "_blank")  return;  // new tab
+        showLoader();
+      });
+
+      // Trigger on every <form> submit
+      document.addEventListener("submit", function (e) {
+        // Don't show for forms that handle their own AJAX
+        if (e.target.dataset.noLoader) return;
+        showLoader();
+      });
+
+      // Hide loader when page becomes visible again (back button)
+      window.addEventListener("pageshow", function (e) {
+        hideLoader();
+      });
+
+      // Hide on popstate (browser back/forward)
+      window.addEventListener("popstate", function () {
+        hideLoader();
+      });
+    });
+  })();
+</script>

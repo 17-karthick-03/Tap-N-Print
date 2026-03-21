@@ -2,78 +2,333 @@
 <html>
 
 <head>
-
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Print History</title>
-
+    <title>Print History - PrintOnTime</title>
     <style>
         * {
             box-sizing: border-box;
             font-family: "Inter", system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
             background: #0a0d14;
-            color: white;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 0 40px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 420px;
+            padding: 0 20px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-top: 8px;
+        }
+
+        .back-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 25px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 22px;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-        }
-
-        h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        .job {
-            background: #0f172a;
-            padding: 14px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            border-left: 4px solid #00f7ff;
-        }
-
-        .job p {
-            margin: 4px 0;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .status {
-            font-weight: 600;
-            color: #00f7ff;
-        }
-
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 18px;
-            color: #00f7ff;
+            cursor: pointer;
             text-decoration: none;
+            flex-shrink: 0;
         }
 
-        .empty {
-            opacity: 0.6;
+        .back-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .topbar-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .topbar-sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+            margin-top: 2px;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 20px;
             text-align: center;
         }
 
-        /* DESKTOP BLOCK */
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.35);
+            line-height: 1.6;
+        }
+
+        /* ── JOB CARD ── */
+        .job-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: fade .3s ease;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* job top row */
+        .job-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .job-file-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(0, 247, 255, 0.1);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            font-size: 20px;
+        }
+
+        .job-file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .job-filename {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .job-amount {
+            font-size: 13px;
+            color: #00f7ff;
+            font-weight: 700;
+        }
+
+        /* status badge */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .status-paid {
+            background: rgba(0, 247, 255, 0.12);
+            color: #00f7ff;
+            border: 1px solid rgba(0, 247, 255, 0.25);
+        }
+
+        .status-printed {
+            background: rgba(0, 220, 100, 0.12);
+            color: #00dc64;
+            border: 1px solid rgba(0, 220, 100, 0.25);
+        }
+
+        .status-uploaded {
+            background: rgba(255, 200, 0, 0.12);
+            color: #ffc800;
+            border: 1px solid rgba(255, 200, 0, 0.25);
+        }
+
+        .status-default {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* job meta row */
+        .job-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .meta-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .meta-chip svg {
+            width: 12px;
+            height: 12px;
+            stroke: rgba(255, 255, 255, 0.4);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        /* print code row */
+        .code-row {
+            background: #0f172a;
+            border: 1px solid rgba(0, 247, 255, 0.15);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .code-row-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .code-value {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 5px;
+            color: #00f7ff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-copy-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(0, 247, 255, 0.1);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: .2s;
+        }
+
+        .code-copy-btn:active {
+            transform: scale(.9);
+        }
+
+        .code-copy-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: #00f7ff;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* no code state */
+        .no-code {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.25);
+            font-style: italic;
+            text-align: center;
+            padding: 8px 0 2px;
+        }
+
+        /* copied toast */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid rgba(0, 247, 255, 0.3);
+            color: #00f7ff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity .2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
 
         @media(min-width:768px) {
             body {
@@ -81,39 +336,112 @@
             }
         }
     </style>
-
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="app">
 
-        <div class="card">
-
-            <h2>Your Print History</h2>
-
-            {% if jobs %}
-
-            {% for job in jobs %}
-            <div class="job">
-                <p><strong>File:</strong> {{ job[0].split('/')[-1] }}</p>
-                <p>Pages: {{ job[1] }}</p>
-                <p>Amount: ₹{{ job[2] }}</p>
-                <p class="status">Status: {{ job[3] }}</p>
+        <!-- TOP BAR -->
+        <div class="topbar">
+            <a class="back-btn" href="/profile">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </a>
+            <div class="topbar-right">
+                <span class="topbar-title">Print History</span>
+                {% if jobs %}
+                <span class="topbar-sub">{{ jobs|length }} job{{ 's' if jobs|length != 1 else '' }}</span>
+                {% endif %}
             </div>
-            {% endfor %}
+        </div>
 
+        {% if jobs %}
+
+        {% for job in jobs %}
+
+        {% set filename = job[0].split('\\')[-1].split('/')[-1] %}
+        {% set clean_name = filename.split('_', 1)[1] if '_' in filename else filename %}
+        {% set status = job[3] | upper %}
+
+        <div class="job-card">
+
+            <!-- TOP ROW -->
+            <div class="job-top">
+                <div class="job-file-icon">📄</div>
+                <div class="job-file-info">
+                    <div class="job-filename">{{ clean_name }}</div>
+                    <div class="job-amount">₹{{ job[2] }}</div>
+                </div>
+                <div class="status-badge
+            {% if status == 'PAID' %}status-paid
+            {% elif status == 'PRINTED' %}status-printed
+            {% elif status == 'UPLOADED' %}status-uploaded
+            {% else %}status-default{% endif %}">
+                    {{ status }}
+                </div>
+            </div>
+
+            <!-- META CHIPS -->
+            <div class="job-meta">
+                <div class="meta-chip">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    {{ job[1] }} page{{ 's' if job[1] != 1 else '' }}
+                </div>
+            </div>
+
+            <!-- PRINT CODE -->
+            {% if job[4] %}
+            <div class="code-row">
+                <div>
+                    <div class="code-row-label">Print Code</div>
+                    <div class="code-value">{{ job[4] }}</div>
+                </div>
+                <button class="code-copy-btn" onclick="copyCode('{{ job[4] }}')">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                </button>
+            </div>
             {% else %}
-
-            <p class="empty">No print history yet.</p>
-
+            <div class="no-code">No print code yet</div>
             {% endif %}
-
-            <a href="/profile">← Back to Profile</a>
 
         </div>
 
+        {% endfor %}
+
+        {% else %}
+
+        <div class="empty-state">
+            <div class="empty-icon">🖨️</div>
+            <h3>No prints yet</h3>
+            <p>Your print history will appear here once you submit a print job.</p>
+        </div>
+
+        {% endif %}
+
     </div>
+
+    <!-- COPY TOAST -->
+    <div class="toast" id="toast">✅ Code copied!</div>
+
+    <script>
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const t = document.getElementById('toast')
+                t.classList.add('show')
+                setTimeout(() => t.classList.remove('show'), 2000)
+            })
+        }
+    </script>
+
+    {% include 'loader.html' %}
 
 </body>
 

@@ -64,7 +64,8 @@
             background: linear-gradient(135deg, #00f7ff, #0066ff);
             color: #000;
             font-size: 16px;
-            font-weight: 600
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .toggle-row {
@@ -78,7 +79,9 @@
             padding: 14px;
             border-radius: 14px;
             background: #111827;
-            text-align: center
+            text-align: center;
+            cursor: pointer;
+            transition: background .2s, color .2s;
         }
 
         .toggle.active {
@@ -131,8 +134,7 @@
             display: none !important
         }
 
-        /* PROFILE ICON (PAGE TOP RIGHT) */
-
+        /* PROFILE ICON */
         .profile-box {
             position: fixed;
             top: 14px;
@@ -201,17 +203,248 @@
                 opacity: 1
             }
         }
+
+        /* ── PRICE INFO BOX (upload page) ── */
+        .price-info {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .price-info-item {
+            flex: 1;
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .price-info-item .pi-label {
+            font-size: 12px;
+            opacity: .6;
+            margin-bottom: 6px;
+        }
+
+        .price-info-item .pi-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00f7ff;
+        }
+
+        .price-info-item.color-item .pi-val {
+            color: #ff6b6b;
+        }
+
+        /* ── BACK BUTTON ── */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: #00f7ff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 0;
+            width: auto;
+            margin-bottom: 18px;
+            cursor: pointer;
+        }
+
+        .back-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: #00f7ff;
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ── PAGE SELECTION SECTION ── */
+        .section-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            opacity: .5;
+            margin-bottom: 10px;
+        }
+
+        .page-type-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .page-type-btn {
+            position: relative;
+            padding: 13px 10px;
+            border-radius: 13px;
+            background: #111827;
+            border: 2px solid transparent;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: border-color .2s, background .2s;
+        }
+
+        .page-type-btn input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .page-type-btn.active {
+            border-color: #00f7ff;
+            background: rgba(0, 247, 255, .08);
+            color: #00f7ff;
+        }
+
+        .range-wrap {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .range-input {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 12px;
+            background: #0f172a;
+            border: 1.5px solid rgba(255, 255, 255, .12);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .range-input:focus {
+            border-color: #00f7ff;
+        }
+
+        .range-input.error-input {
+            border-color: #ff4d4d;
+        }
+
+        .range-error {
+            font-size: 12px;
+            color: #ff4d4d;
+            margin: 4px 0 10px 4px;
+            display: none;
+        }
+
+        .range-error.show {
+            display: block;
+        }
+
+        .selected-pages-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 247, 255, .1);
+            border: 1px solid rgba(0, 247, 255, .25);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #00f7ff;
+            margin-bottom: 18px;
+        }
+
+        /* ── SUCCESS PAGE ── */
+        .success-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .success h2 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .success p {
+            text-align: center;
+        }
+
+        .code-box {
+            background: linear-gradient(135deg, rgba(0, 247, 255, .12), rgba(0, 102, 255, .12));
+            border: 2px solid rgba(0, 247, 255, .4);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            margin: 18px 0;
+        }
+
+        .code-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: .5;
+            margin-bottom: 10px;
+        }
+
+        .code-number {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            color: #00f7ff;
+            text-shadow: 0 0 20px rgba(0, 247, 255, .5);
+        }
+
+        .code-hint {
+            font-size: 12px;
+            opacity: .5;
+            margin-top: 10px;
+        }
+
+        /* ── CONFIRM POPUP ROWS ── */
+        .cf-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        .cf-row:last-child {
+            border-bottom: none;
+        }
+
+        .cf-label {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .cf-val {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <!-- PROFILE ICON -->
-
     <div class="profile-box">
         <a href="/profile">
             <div class="profile-icon">
-
                 {% if photo %}
                 <img src="/static/profile_pics/{{ photo }}">
                 {% else %}
@@ -220,75 +453,137 @@
                         d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
                 </svg>
                 {% endif %}
-
             </div>
         </a>
     </div>
 
-
     <div class="app">
 
-        <!-- STEP 2 -->
+        <!-- STEP 2: UPLOAD -->
         <div class="card" id="step2">
 
             <h2>Upload Document</h2>
+            <p style="margin-bottom:16px;">Choose a PDF to print</p>
 
-            <input type="file" id="pdf" accept="application/pdf" hidden>
+            <!-- PRICE INFO BOX -->
+            <div class="price-info">
+                <div class="price-info-item">
+                    <div class="pi-label">⚫ B &amp; W</div>
+                    <div class="pi-val">₹1.5<span style="font-size:12px;opacity:.6;font-weight:400">/page</span></div>
+                </div>
+                <div class="price-info-item color-item">
+                    <div class="pi-label">🎨 Colour</div>
+                    <div class="pi-val">₹4.5<span style="font-size:12px;opacity:.6;font-weight:400">/page</span></div>
+                </div>
+            </div>
+
+            <input type="file" id="pdf" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*" hidden>
 
             <div class="file-box" onclick="document.getElementById('pdf').click()">
-                📄
-                <span id="fileText">Upload PDF</span>
+                📄 <span id="fileText">Tap to upload PDF or Image</span>
             </div>
 
             <br>
 
-            <button onclick="upload()">Next</button>
+            <button onclick="upload()">Next →</button>
 
         </div>
 
 
-        <!-- STEP 3 -->
+        <!-- STEP 3: SETTINGS -->
         <div class="card hidden" id="step3">
 
+            <!-- BACK BUTTON -->
+            <button class="back-btn" onclick="go(2)">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Back
+            </button>
+
             <h2>Print Settings</h2>
+            <p>Total: <span id="totalPages">0</span> pages</p>
 
-            <p>B&W or Colour</p>
-
+            <div class="section-label">Print Mode</div>
             <div class="toggle-row">
-                <div class="toggle active" onclick="setBW('bw',this)">B & W</div>
-                <div class="toggle" onclick="setBW('color',this)">Colour</div>
+                <div class="toggle active" onclick="setBW('bw',this)">⚫ B &amp; W</div>
+                <div class="toggle" onclick="setBW('color',this)">🎨 Colour</div>
             </div>
 
-            <p>Single or Double side</p>
-
+            <div class="section-label">Sides</div>
             <div class="toggle-row">
                 <div class="toggle active" onclick="setSide('single',this)">Single</div>
                 <div class="toggle" onclick="setSide('double',this)">Double</div>
             </div>
 
-            <p>Copies</p>
-
+            <div class="section-label">Copies</div>
             <div class="counter">
                 <button onclick="chg(-1)">−</button>
-                <span id="copies">1</span>
+                <span id="copies" style="font-size:22px;font-weight:700;">1</span>
                 <button onclick="chg(1)">+</button>
+            </div>
+
+            <div class="section-label">Page Selection</div>
+
+            <div class="page-type-grid">
+                <label class="page-type-btn active" id="lbl-all">
+                    <input type="radio" name="pageType" value="all" checked onchange="onPageTypeChange('all')">
+                    📄 All Pages
+                </label>
+                <label class="page-type-btn" id="lbl-odd">
+                    <input type="radio" name="pageType" value="odd" onchange="onPageTypeChange('odd')">
+                    Odd Pages
+                </label>
+                <label class="page-type-btn" id="lbl-even">
+                    <input type="radio" name="pageType" value="even" onchange="onPageTypeChange('even')">
+                    Even Pages
+                </label>
+                <label class="page-type-btn" id="lbl-range">
+                    <input type="radio" name="pageType" value="range" onchange="onPageTypeChange('range')">
+                    Custom Range
+                </label>
+            </div>
+
+            <!-- Range input (shown only when "Custom Range" is selected) -->
+            <div id="rangeWrap" class="range-wrap hidden">
+                <input type="text" id="pageRange" class="range-input" placeholder="e.g. 1-5, 8, 11-13"
+                    inputmode="numeric" oninput="calc()">
+                <div class="range-error" id="rangeError">
+                    ⚠ Some pages exceed the document length (<span id="maxPagesHint"></span> pages)
+                </div>
+                <div class="range-error" id="rangeFormatError">
+                    ⚠ Only numbers, hyphens and commas are allowed (e.g. 1-5, 8)
+                </div>
+            </div>
+
+            <div class="selected-pages-badge">
+                📋 Selected: <strong><span id="selectedPages">0</span> pages</strong>
             </div>
 
             <div class="price">₹ <span id="amount">0.00</span></div>
 
-            <button onclick="goCustom()">Customize Pages</button>
-
-            <br><br>
+            <button onclick="goCustom()"
+                style="margin-bottom:12px; background: rgba(255,255,255,0.08); color:#fff; border: 1.5px solid rgba(255,255,255,.15);">
+                🎨 Customize Per Page
+            </button>
 
             <button onclick="payNormal()">Proceed to Payment</button>
 
         </div>
 
 
-        <!-- STEP 4 CUSTOM -->
+        <!-- STEP 4: CUSTOM PER-PAGE -->
         <div class="card hidden" id="step4">
 
+            <button class="back-btn" onclick="go(3)">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Back
+            </button>
+
             <h2>Customize Pages</h2>
+            <p>Set B&W or Colour for each page individually</p>
 
             <div id="pageList"></div>
 
@@ -302,43 +597,187 @@
         <!-- SUCCESS -->
         <div class="card hidden success" id="success">
 
-            <h2>Payment Successful 🎉</h2>
+            <div class="success-icon">🎉</div>
+            <h2>Payment Successful!</h2>
+            <p>Show this code at the printer kiosk</p>
 
-            <p>Use this code at the printer kiosk</p>
+            <div class="code-box">
+                <div class="code-label">Your Print Code</div>
+                <div class="code-number" id="printCode">------</div>
+                <div class="code-hint">Valid for one-time use only</div>
+            </div>
 
-            <div class="code" id="printCode">------</div>
+            <div style="text-align:center; margin-bottom:18px;">
+                <img id="qrImage" src=""
+                    style="width:160px; height:160px; border-radius:16px; border:2px solid rgba(0,247,255,.3); display:none;">
+                <p style="font-size:12px; margin-top:8px; opacity:.5;">Scan at the kiosk</p>
+            </div>
 
-            <p>We’ve also sent this code to your email.</p>
+            <p style="font-size:13px; text-align:center;">
+                📧 We've also sent this code to your email.
+            </p>
 
         </div>
 
     </div>
 
 
+    <!-- ══ CONFIRM & PAY POPUP ══ -->
+    <div id="confirmOverlay" style="
+        display:none;
+        position:fixed; inset:0; z-index:8000;
+        background:rgba(10,13,20,0.75);
+        backdrop-filter:blur(10px);
+        -webkit-backdrop-filter:blur(10px);
+        justify-content:center; align-items:flex-end;
+        padding:0;
+    ">
+        <div id="confirmSheet" style="
+            background:#111827;
+            border:1px solid rgba(255,255,255,0.1);
+            border-radius:26px 26px 0 0;
+            padding:28px 22px 36px;
+            width:100%; max-width:420px;
+            animation:slideUp .3s ease;
+        ">
+            <!-- drag handle -->
+            <div style="width:40px; height:4px; border-radius:2px;
+                        background:rgba(255,255,255,0.15);
+                        margin:0 auto 20px;"></div>
+
+            <div style="font-size:17px; font-weight:700; margin-bottom:18px;">
+                🧾 Order Summary
+            </div>
+
+            <!-- File info -->
+            <div style="
+                background:rgba(0,247,255,0.06);
+                border:1px solid rgba(0,247,255,0.15);
+                border-radius:14px; padding:14px 16px;
+                margin-bottom:16px;
+                display:flex; align-items:center; gap:12px;
+            ">
+                <span style="font-size:24px;">📄</span>
+                <div style="min-width:0;">
+                    <div id="cf-filename" style="
+                        font-size:14px; font-weight:600;
+                        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+                    ">—</div>
+                    <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:2px;">
+                        <span id="cf-totalpages">—</span> pages total
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown rows -->
+            <div style="
+                background:rgba(255,255,255,0.04);
+                border:1px solid rgba(255,255,255,0.08);
+                border-radius:14px;
+                overflow:hidden;
+                margin-bottom:16px;
+            ">
+                <div class="cf-row">
+                    <span class="cf-label">Selected Pages</span>
+                    <span class="cf-val" id="cf-pages">—</span>
+                </div>
+                <div class="cf-row">
+                    <span class="cf-label">Print Mode</span>
+                    <span class="cf-val" id="cf-mode">—</span>
+                </div>
+                <div class="cf-row">
+                    <span class="cf-label">Sides</span>
+                    <span class="cf-val" id="cf-sides">—</span>
+                </div>
+                <div class="cf-row">
+                    <span class="cf-label">Copies</span>
+                    <span class="cf-val" id="cf-copies">—</span>
+                </div>
+                <div class="cf-row">
+                    <span class="cf-label">Rate</span>
+                    <span class="cf-val" id="cf-rate">—</span>
+                </div>
+                <div class="cf-row" style="
+                    border-top:1px solid rgba(0,247,255,0.2);
+                    background:rgba(0,247,255,0.06);
+                ">
+                    <span style="font-size:15px; font-weight:700; color:#fff;">Total</span>
+                    <span style="font-size:20px; font-weight:800; color:#00f7ff;" id="cf-total">₹0.00</span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <button id="cf-pay-btn" onclick="confirmAndPay()" style="
+                width:100%; padding:16px;
+                border-radius:16px; border:none;
+                background:linear-gradient(135deg,#00f7ff,#0066ff);
+                color:#000; font-size:16px; font-weight:700;
+                cursor:pointer; margin-bottom:10px;
+            ">
+                Confirm & Pay →
+            </button>
+
+            <button onclick="closeConfirm()" style="
+                width:100%; padding:14px;
+                border-radius:16px; border:1.5px solid rgba(255,255,255,0.12);
+                background:transparent; color:#fff;
+                font-size:14px; font-weight:500; cursor:pointer;
+            ">
+                Go Back
+            </button>
+        </div>
+    </div>
+
     <script>
 
         let jobId, pages = 0, copies = 1, bw = 'bw', side = 'single'
         let pageImages = []
         let pageModes = {}
-        history.replaceState({ step: 2 }, "", "#step2")
-        function go(n) {
 
+        history.replaceState({ step: 2 }, "", "#step2")
+
+        /* ── NAVIGATION ── */
+        function go(n) {
             document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
             document.getElementById('step' + n).classList.remove('hidden')
-
             history.pushState({ step: n }, "", "#step" + n)
-
         }
 
-        function upload() {
+        window.addEventListener("popstate", function (e) {
+            let step = e.state && e.state.step
 
-            if (!pdf.files.length) {
-                alert("Please upload a PDF file first")
+            // On success page — block back completely
+            if (!document.getElementById("success").classList.contains("hidden")) {
+                history.pushState({ step: "success" }, "", "#success")
                 return
             }
 
+            // On step 3 or 4 — ask confirmation
+            if (step === 3 || step === 4) {
+                history.pushState(e.state, "", "#step" + step)
+                if (confirm("Go back? Your current selections will be lost.")) {
+                    let prev = step - 1
+                    document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
+                    document.getElementById('step' + prev).classList.remove('hidden')
+                    history.replaceState({ step: prev }, "", "#step" + prev)
+                }
+                return
+            }
+
+            // Step 2 — just show it normally
+            if (step === 2) {
+                document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
+                document.getElementById('step2').classList.remove('hidden')
+            }
+        })
+
+        /* ── UPLOAD ── */
+        function upload() {
+            const pdf = document.getElementById("pdf")
+            if (!pdf.files.length) { alert("Please select a file first"); return }
+
             let fd = new FormData()
-            fd.append("pdf", pdf.files[0])
+            fd.append("file", pdf.files[0])
 
             showLoader()
 
@@ -346,21 +785,30 @@
                 .then(r => r.json())
                 .then(d => {
                     hideLoader()
+                    if (d.error) { alert(d.error); return }
                     jobId = d.job_id
                     pages = d.pages
                     pageImages = d.images
+                    document.getElementById("totalPages").innerText = pages
+                    document.getElementById("maxPagesHint").innerText = pages
                     go(3)
                     calc()
                 })
-
+                .catch(() => { hideLoader(); alert("Upload failed. Try again.") })
         }
 
-        function chg(v) {
+        document.getElementById("pdf").addEventListener("change", function () {
+            const file = this.files[0]
+            if (!file) return
+            document.getElementById("fileText").innerText = file.name
+            document.querySelector(".file-box").classList.add("active")
+        })
 
+        /* ── COUNTERS / TOGGLES ── */
+        function chg(v) {
             copies = Math.max(1, copies + v)
             document.getElementById("copies").innerText = copies
             calc()
-
         }
 
         function setBW(v, e) {
@@ -377,79 +825,227 @@
             calc()
         }
 
+        /* ── PAGE TYPE CHANGE ── */
+        function onPageTypeChange(type) {
+            // Update active styles on the label buttons
+            ['all', 'odd', 'even', 'range'].forEach(t => {
+                document.getElementById('lbl-' + t).classList.toggle('active', t === type)
+            })
 
-        function calc() {
+            // Show/hide range input
+            document.getElementById('rangeWrap').classList.toggle('hidden', type !== 'range')
 
-            let rate = bw === 'bw' ? 1.5 : 4.5
-            let ep = side === 'double' ? Math.ceil(pages / 2) : pages
-            let amt = ep * copies * rate
-
-            amount.innerText = amt.toFixed(2)
-
+            calc()
         }
 
+        /* ── CALC ── */
+        function calc() {
+            let type = document.querySelector('input[name="pageType"]:checked').value
+            let selectedCount = 0
+            let hasError = false
+
+            if (type === "all") selectedCount = pages
+            if (type === "odd") selectedCount = Math.ceil(pages / 2)
+            if (type === "even") selectedCount = Math.floor(pages / 2)
+
+            if (type === "range") {
+                let range = document.getElementById("pageRange").value.trim()
+                let input = document.getElementById("pageRange")
+                let errEl = document.getElementById("rangeError")
+                let fmtEl = document.getElementById("rangeFormatError")
+
+                // Check for invalid characters first
+                let hasFormatError = range !== "" && /[^0-9,\-\s]/.test(range)
+                fmtEl.classList.toggle('show', hasFormatError)
+
+                if (range === "" || hasFormatError) {
+                    selectedCount = 0
+                    input.classList.toggle('error-input', hasFormatError)
+                    errEl.classList.remove('show')
+                } else {
+                    let parts = range.split(",")
+                    parts.forEach(p => {
+                        p = p.trim()
+                        if (p.includes("-")) {
+                            let [s, e] = p.split("-").map(Number)
+                            if (s && e && s <= e) {
+                                if (e > pages || s > pages) { hasError = true }
+                                else { selectedCount += (e - s + 1) }
+                            }
+                        } else {
+                            let n = Number(p)
+                            if (n) {
+                                if (n > pages) { hasError = true }
+                                else { selectedCount += 1 }
+                            }
+                        }
+                    })
+
+                    input.classList.toggle('error-input', hasError)
+                    errEl.classList.toggle('show', hasError)
+                }
+            }
+
+            document.getElementById("selectedPages").innerText = hasError ? 0 : selectedCount
+
+            let rate = bw === 'bw' ? 1.5 : 4.5
+            let ep = side === 'double' ? Math.ceil(selectedCount / 2) : selectedCount
+            let amt = hasError ? 0 : ep * copies * rate
+
+            document.getElementById("amount").innerText = amt.toFixed(2)
+        }
+
+        function getSelectedPages() {
+            let type = document.querySelector('input[name="pageType"]:checked').value
+            if (type === "all") return [...Array(pages).keys()].map(i => i + 1)
+            if (type === "odd") return [...Array(pages).keys()].map(i => i + 1).filter(p => p % 2 === 1)
+            if (type === "even") return [...Array(pages).keys()].map(i => i + 1).filter(p => p % 2 === 0)
+            if (type === "range") {
+                let range = document.getElementById("pageRange").value.trim()
+                let result = []
+                if (range === "") return []
+                range.split(",").forEach(part => {
+                    part = part.trim()
+                    if (part.includes("-")) {
+                        let [s, e] = part.split("-").map(Number)
+                        for (let i = s; i <= e; i++) if (i <= pages) result.push(i)
+                    } else {
+                        let n = Number(part)
+                        if (n && n <= pages) result.push(n)
+                    }
+                })
+                return result
+            }
+        }
+
+        /* ── CUSTOM PAGE VIEW ── */
         function goCustom() {
-
             go(4)
-
             let container = document.getElementById("pageList")
             container.innerHTML = ""
-
             pageModes = {}
 
-            pageImages.forEach((img, i) => {
+            let selectedPages = getSelectedPages()
 
-                pageModes[i + 1] = 'bw'
-
+            selectedPages.forEach(p => {
+                let img = pageImages[p - 1]
+                pageModes[p] = 'bw'
                 container.innerHTML += `
-<img src="${img}" class="preview-img">
-<div class="toggle-row">
-<div class="toggle active" onclick="setPage(${i + 1},'bw',this)">B & W</div>
-<div class="toggle" onclick="setPage(${i + 1},'color',this)">Colour</div>
-</div>
-`
-
+                    <p style="margin:10px 0 4px; font-weight:600; opacity:.8;">Page ${p}</p>
+                    <img src="${img}" class="preview-img">
+                    <div class="toggle-row">
+                        <div class="toggle active" onclick="setPage(${p},'bw',this)">⚫ B &amp; W</div>
+                        <div class="toggle" onclick="setPage(${p},'color',this)">🎨 Colour</div>
+                    </div>
+                `
             })
 
             calculateCustom()
-
         }
 
         function setPage(page, mode, el) {
-
             pageModes[page] = mode
-
             el.parentElement.querySelectorAll('.toggle').forEach(t => t.classList.remove('active'))
-
             el.classList.add('active')
-
             calculateCustom()
-
         }
 
         function calculateCustom() {
-
             let total = 0
-
-            for (let p in pageModes) {
-                total += pageModes[p] === 'bw' ? 1.5 : 4.5
-            }
-
+            for (let p in pageModes) total += pageModes[p] === 'bw' ? 1.5 : 4.5
             total *= copies
-
-            customAmount.innerText = total.toFixed(2)
-
+            document.getElementById("customAmount").innerText = total.toFixed(2)
         }
 
+        /* ── PAYMENT ── */
+
+        // Stores pending payment params until user confirms
+        let pendingPayment = null
+
         function payNormal() {
-            startPayment("normal", {}, amount.innerText)
+            let type = document.querySelector('input[name="pageType"]:checked').value
+            let selectedPageList = getSelectedPages()
+            let start = selectedPageList.length ? Math.min(...selectedPageList) : 1
+            let end = selectedPageList.length ? Math.max(...selectedPageList) : pages
+            let amt = document.getElementById("amount").innerText
+
+            if (parseFloat(amt) <= 0) { alert("Please select at least one page."); return }
+
+            pendingPayment = { mode: "normal", pagesObj: {}, amount: amt, start, end }
+            showConfirm(amt, selectedPageList.length, "normal")
         }
 
         function payCustom() {
-            startPayment("custom", pageModes, customAmount.innerText)
+            let selectedPageList = getSelectedPages()
+            let start = selectedPageList.length ? Math.min(...selectedPageList) : 1
+            let end = selectedPageList.length ? Math.max(...selectedPageList) : pages
+            let amt = document.getElementById("customAmount").innerText
+
+            if (parseFloat(amt) <= 0) { alert("Please select at least one page."); return }
+
+            pendingPayment = { mode: "custom", pagesObj: pageModes, amount: amt, start, end }
+            showConfirm(amt, selectedPageList.length, "custom")
         }
 
-        function startPayment(mode, pagesObj, amount) {
+        function showConfirm(amt, selectedCount, mode) {
+            // File name — get from fileText
+            let rawName = document.getElementById("fileText").innerText
+            document.getElementById("cf-filename").innerText = rawName
+
+            // Pages
+            let type = document.querySelector('input[name="pageType"]:checked').value
+            let pagesLabel = type === "all" ? `All (${selectedCount})` :
+                type === "odd" ? `Odd pages (${selectedCount})` :
+                    type === "even" ? `Even pages (${selectedCount})` :
+                        `Custom range (${selectedCount})`
+            document.getElementById("cf-totalpages").innerText = pages
+            document.getElementById("cf-pages").innerText = pagesLabel
+            document.getElementById("cf-mode").innerText = bw === "bw" ? "⚫ B&W" : "🎨 Colour"
+            document.getElementById("cf-sides").innerText = side === "single" ? "Single" : "Double"
+            document.getElementById("cf-copies").innerText = copies
+
+            if (mode === "custom") {
+                // Mixed rates
+                let bwCount = Object.values(pageModes).filter(v => v === "bw").length
+                let colorCount = Object.values(pageModes).filter(v => v === "color").length
+                let rateText = ""
+                if (bwCount > 0 && colorCount > 0)
+                    rateText = `₹1.5 × ${bwCount} B&W + ₹4.5 × ${colorCount} Colour`
+                else if (colorCount > 0)
+                    rateText = `₹4.5/page (Colour)`
+                else
+                    rateText = `₹1.5/page (B&W)`
+                document.getElementById("cf-rate").innerText = rateText
+            } else {
+                let rate = bw === "bw" ? "₹1.5/page" : "₹4.5/page"
+                let ep = side === "double" ? Math.ceil(selectedCount / 2) : selectedCount
+                document.getElementById("cf-rate").innerText =
+                    `${rate} × ${ep} pages × ${copies} cop${copies > 1 ? "ies" : "y"}`
+            }
+
+            document.getElementById("cf-total").innerText = "₹" + parseFloat(amt).toFixed(2)
+
+            // Show overlay
+            let overlay = document.getElementById("confirmOverlay")
+            overlay.style.display = "flex"
+        }
+
+        function closeConfirm() {
+            document.getElementById("confirmOverlay").style.display = "none"
+            pendingPayment = null
+        }
+
+        function confirmAndPay() {
+            if (!pendingPayment) return
+            // Save payment data BEFORE closing (closeConfirm nulls pendingPayment)
+            let { mode, pagesObj, amount, start, end } = pendingPayment
+            closeConfirm()
+            startPayment(mode, pagesObj, amount, start, end)
+        }
+
+        function startPayment(mode, pagesObj, amount, start, end) {
+
+            showLoader()
 
             fetch("/create-order", {
                 method: "POST",
@@ -458,12 +1054,16 @@
             })
                 .then(r => r.json())
                 .then(data => {
+                    hideLoader()
 
                     let options = {
                         key: data.key,
                         amount: data.amount,
                         order_id: data.order_id,
+
                         handler: function () {
+                            // Payment done — show loader while server processes
+                            showLoader()
 
                             fetch("/payment-success", {
                                 method: "POST",
@@ -474,76 +1074,47 @@
                                     bw: bw,
                                     copies: copies,
                                     mode: mode,
-                                    pages: pagesObj
+                                    pages: pagesObj,
+                                    start_page: start,
+                                    end_page: end
                                 })
                             })
                                 .then(r => r.json())
                                 .then(d => {
-
+                                    hideLoader()
                                     document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
-                                    success.classList.remove('hidden')
-                                    printCode.innerText = d.code
-
+                                    document.getElementById("success").classList.remove('hidden')
+                                    document.getElementById("printCode").innerText = d.code
+                                    if (d.qr) {
+                                        const qrImg = document.getElementById("qrImage")
+                                        qrImg.src = "data:image/png;base64," + d.qr
+                                        qrImg.style.display = "inline-block"
+                                    }
                                 })
+                                .catch(() => {
+                                    hideLoader()
+                                    alert("Payment confirmed but something went wrong. Check your email for the print code.")
+                                })
+                        },
 
+                        modal: {
+                            ondismiss: function () {
+                                hideLoader()
+                            }
                         }
                     }
 
                     new Razorpay(options).open()
-
                 })
-
+                .catch(() => {
+                    hideLoader()
+                    alert("Could not create order. Please try again.")
+                })
         }
 
-        function showLoader() {
-            loader.classList.remove("hidden")
-        }
-
-        function hideLoader() {
-            loader.classList.add("hidden")
-        }
-
-        /* SHOW FILE NAME AFTER SELECT */
-
-        document.getElementById("pdf").addEventListener("change", function () {
-
-            const file = this.files[0]
-
-            if (!file) return
-
-            document.getElementById("fileText").innerText = file.name
-            document.querySelector(".file-box").classList.add("active")
-
-        })
-        window.onpopstate = function (event) {
-
-            if (event.state && event.state.step) {
-
-                let step = event.state.step
-
-                document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
-                document.getElementById('step' + step).classList.remove('hidden')
-
-            }
-
-        }
-        window.addEventListener("popstate", function (e) {
-
-            if (e.state && e.state.step) {
-                let step = e.state.step
-
-                document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'))
-                document.getElementById('step' + step).classList.remove('hidden')
-            }
-
-        })
     </script>
 
-
-    <div id="loader" class="loader hidden">
-        <div class="spinner"></div>
-        <p>Processing...</p>
-    </div>
+    {% include 'loader.html' %}
 
 </body>
 
