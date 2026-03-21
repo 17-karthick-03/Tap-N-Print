@@ -95,7 +95,7 @@ Frontend: HTML, CSS, and JavaScript.
 Clone & Dependencies
 git clone https://github.com/17-karthick-03/Tap-N-Print.git
 cd folder_name
-pip install flask werkzeug PyPDF2 pdf2image razorpay flask-mail python-dotenv qrcode pillow
+pip install flask werkzeug PyPDF2 pdf2image razorpay flask-mail python-dotenv qrcode reportlab
 Required System Tools
 
 Ghostscript:
