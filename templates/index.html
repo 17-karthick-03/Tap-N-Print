@@ -572,11 +572,11 @@
                 PDF: single file only
                 Images: multiple allowed (each = one page, merged into PDF)
             -->
-        <input type="file" id="pdf" accept=".pdf,application/pdf" hidden />
+        <input type="file" id="pdf" accept="application/pdf" hidden />
         <input
           type="file"
           id="imgInput"
-          accept=".jpg,.jpeg,.png,.webp,image/*"
+          accept="image/jpeg,image/png,image/webp"
           multiple
           hidden
         />
@@ -596,24 +596,48 @@
           class="file-box"
           id="pdfBox"
           onclick="document.getElementById('pdf').click()"
+          style="display: block; cursor: pointer"
         >
           📄 <span id="fileText">Tap to upload PDF</span>
         </div>
 
-        <!-- Image drop area (hidden initially) -->
-        <div
-          class="file-box hidden"
-          id="imgBox"
-          onclick="document.getElementById('imgInput').click()"
-        >
-          🖼️ <span id="imgText">Tap to select images</span>
-          <div style="font-size: 11px; opacity: 0.4; margin-top: 6px">
-            Each image = one page · Multiple allowed
+        <!-- Image picker area (hidden initially) -->
+        <div class="hidden" id="imgArea">
+          <!-- Empty state — no images yet -->
+          <div
+            class="file-box"
+            id="imgBox"
+            onclick="document.getElementById('imgInput').click()"
+            style="display: block; cursor: pointer"
+          >
+            🖼️ <span id="imgText">Tap to add an image</span>
+            <div style="font-size: 11px; opacity: 0.4; margin-top: 6px">
+              Each image = one page · Tap again to add more
+            </div>
+          </div>
+
+          <!-- Chips showing selected images + Add More button -->
+          <div class="hidden" id="imgChipsWrap">
+            <div class="file-chips" id="imgChips"></div>
+            <button
+              onclick="document.getElementById('imgInput').click()"
+              style="
+                width: 100%;
+                margin-top: 10px;
+                padding: 13px;
+                border-radius: 14px;
+                border: 1.5px dashed rgba(0, 247, 255, 0.35);
+                background: rgba(0, 247, 255, 0.05);
+                color: #00f7ff;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+              "
+            >
+              + Add Another Image
+            </button>
           </div>
         </div>
-
-        <!-- Chips showing selected images -->
-        <div class="file-chips hidden" id="imgChips"></div>
 
         <br />
 
@@ -1016,9 +1040,11 @@
           .getElementById("pdfBox")
           .classList.toggle("hidden", tab !== "pdf");
         document
-          .getElementById("imgBox")
+          .getElementById("imgArea")
           .classList.toggle("hidden", tab !== "img");
-        document.getElementById("imgChips").classList.add("hidden");
+        document.getElementById("imgChips").innerHTML = "";
+        document.getElementById("imgChipsWrap").classList.add("hidden");
+        document.getElementById("imgBox").classList.remove("hidden");
         // Reset selections when switching tab
         selectedImages = [];
         document.getElementById("pdf").value = "";
@@ -1061,21 +1087,23 @@
           this.value = "";
 
           renderChips();
-          document.getElementById("imgBox").classList.add("active");
-          document.getElementById("imgText").innerText =
-            selectedImages.length === 1
-              ? selectedImages[0].name
-              : `${selectedImages.length} images selected`;
         });
 
       function renderChips() {
         const chips = document.getElementById("imgChips");
+        const emptyBox = document.getElementById("imgBox");
+        const chipsWrap = document.getElementById("imgChipsWrap");
+
         if (!selectedImages.length) {
-          chips.classList.add("hidden");
           chips.innerHTML = "";
+          emptyBox.classList.remove("hidden");
+          chipsWrap.classList.add("hidden");
           return;
         }
-        chips.classList.remove("hidden");
+
+        // Show chips, hide the empty tap-box
+        emptyBox.classList.add("hidden");
+        chipsWrap.classList.remove("hidden");
         chips.innerHTML = selectedImages
           .map(
             (f, i) => `
@@ -1091,15 +1119,6 @@
       function removeImage(idx) {
         selectedImages.splice(idx, 1);
         renderChips();
-        if (!selectedImages.length) {
-          document.getElementById("imgBox").classList.remove("active");
-          document.getElementById("imgText").innerText = "Tap to select images";
-        } else {
-          document.getElementById("imgText").innerText =
-            selectedImages.length === 1
-              ? selectedImages[0].name
-              : `${selectedImages.length} images selected`;
-        }
       }
 
       /* ═══════════════════════════════════════════

@@ -1,4 +1,7 @@
 venv/
 .env
 kiosk.db
+kiosk_done.db
 .gitignore
+uploads/
+static/previews/

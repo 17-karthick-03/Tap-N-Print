@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>⚠️ System Warning</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        height: 100vh;
+        width: 100vw;
+        background: #0f172a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        color: #fff;
+      }
+
+      .container {
+        text-align: center;
+        padding: 40px;
+        border: 2px solid #ef4444;
+        border-radius: 12px;
+        background: rgba(255, 0, 0, 0.1);
+        box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+        animation: glow 1.5s infinite alternate;
+      }
+
+      h1 {
+        font-size: 3rem;
+        color: #ef4444;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 1.4rem;
+        line-height: 1.6;
+      }
+
+      .highlight {
+        color: #facc15;
+        font-weight: bold;
+      }
+
+      @keyframes glow {
+        from {
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+        to {
+          box-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>⚠️ WARNING</h1>
+      <p>
+        This system is currently running as a
+        <span class="highlight">SERVER</span>.
+      </p>
+      <p>
+        It is performing <span class="highlight">important operations</span>.
+      </p>
+      <p style="margin-top: 20px">
+        ❌ Do <span class="highlight">NOT</span> turn off or restart this
+        system.
+      </p>
+    </div>
+  </body>
+</html>
