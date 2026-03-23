@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PrintOnTime — System Architecture</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #fff;
+        font-family: system-ui, sans-serif;
+      }
+      svg text.th {
+        font-size: 14px;
+        font-weight: 500;
+        fill: #1a1a2e;
+      }
+      svg text.ts {
+        font-size: 12px;
+        font-weight: 400;
+        fill: #555;
+      }
+      .c-purple rect {
+        fill: #eeedfe;
+        stroke: #534ab7;
+      }
+      .c-purple text.th {
+        fill: #3c3489;
+      }
+      .c-purple text.ts {
+        fill: #534ab7;
+      }
+      .c-teal rect {
+        fill: #e1f5ee;
+        stroke: #0f6e56;
+      }
+      .c-teal text.th {
+        fill: #085041;
+      }
+      .c-teal text.ts {
+        fill: #0f6e56;
+      }
+      .c-gray rect {
+        fill: #f1efe8;
+        stroke: #5f5e5a;
+      }
+      .c-gray text.th {
+        fill: #444441;
+      }
+      .c-gray text.ts {
+        fill: #5f5e5a;
+      }
+      .c-blue rect {
+        fill: #e6f1fb;
+        stroke: #185fa5;
+      }
+      .c-blue text.th {
+        fill: #0c447c;
+      }
+      .c-blue text.ts {
+        fill: #185fa5;
+      }
+      .c-coral rect {
+        fill: #faece7;
+        stroke: #993c1d;
+      }
+      .c-coral text.th {
+        fill: #712b13;
+      }
+      .c-coral text.ts {
+        fill: #993c1d;
+      }
+      line.arr {
+        stroke: #888780;
+        stroke-width: 1.5;
+        fill: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0a0d14;
+        }
+        .c-purple rect {
+          fill: #3c3489;
+          stroke: #afa9ec;
+        }
+        .c-purple text.th {
+          fill: #cecbf6;
+        }
+        .c-purple text.ts {
+          fill: #afa9ec;
+        }
+        .c-teal rect {
+          fill: #085041;
+          stroke: #5dcaa5;
+        }
+        .c-teal text.th {
+          fill: #9fe1cb;
+        }
+        .c-teal text.ts {
+          fill: #5dcaa5;
+        }
+        .c-gray rect {
+          fill: #444441;
+          stroke: #b4b2a9;
+        }
+        .c-gray text.th {
+          fill: #d3d1c7;
+        }
+        .c-gray text.ts {
+          fill: #b4b2a9;
+        }
+        .c-blue rect {
+          fill: #0c447c;
+          stroke: #85b7eb;
+        }
+        .c-blue text.th {
+          fill: #b5d4f4;
+        }
+        .c-blue text.ts {
+          fill: #85b7eb;
+        }
+        .c-coral rect {
+          fill: #712b13;
+          stroke: #f0997b;
+        }
+        .c-coral text.th {
+          fill: #f5c4b3;
+        }
+        .c-coral text.ts {
+          fill: #f0997b;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="100%" viewBox="0 0 680 860" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path
+            d="M2 1L8 5L2 9"
+            fill="none"
+            stroke="#888780"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </marker>
+      </defs>
+
+      <text class="ts" x="24" y="96" text-anchor="middle">Client</text>
+      <text class="ts" x="24" y="272" text-anchor="middle">Gateway</text>
+      <text class="ts" x="24" y="460" text-anchor="middle">Backend</text>
+      <text class="ts" x="24" y="660" text-anchor="middle">Data</text>
+      <text class="ts" x="24" y="800" text-anchor="middle">Output</text>
+
+      <line
+        x1="52"
+        y1="148"
+        x2="640"
+        y2="148"
+        stroke="#D3D1C7"
+        stroke-width="0.5"
+        stroke-dasharray="4 3"
+      />
+      <line
+        x1="52"
+        y1="320"
+        x2="640"
+        y2="320"
+        stroke="#D3D1C7"
+        stroke-width="0.5"
+        stroke-dasharray="4 3"
+      />
+      <line
+        x1="52"
+        y1="560"
+        x2="640"
+        y2="560"
+        stroke="#D3D1C7"
+        stroke-width="0.5"
+        stroke-dasharray="4 3"
+      />
+      <line
+        x1="52"
+        y1="730"
+        x2="640"
+        y2="730"
+        stroke="#D3D1C7"
+        stroke-width="0.5"
+        stroke-dasharray="4 3"
+      />
+
+      <g class="c-purple">
+        <rect x="60" y="60" width="160" height="56" rx="8" stroke-width="0.5" />
+        <text
+          class="th"
+          x="140"
+          y="81"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Mobile browser
+        </text>
+        <text
+          class="ts"
+          x="140"
+          y="101"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          index.html (Jinja2)
+        </text>
+      </g>
+      <g class="c-teal">
+        <rect
+          x="460"
+          y="60"
+          width="160"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="540"
+          y="81"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Kiosk screen
+        </text>
+        <text
+          class="ts"
+          x="540"
+          y="101"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          kiosk.html (fullscreen)
+        </text>
+      </g>
+
+      <g class="c-gray">
+        <rect
+          x="210"
+          y="168"
+          width="260"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="340"
+          y="189"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Cloudflare tunnel
+        </text>
+        <text
+          class="ts"
+          x="340"
+          y="209"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          kiosk.saihasoft.co.in
+        </text>
+      </g>
+      <g class="c-gray">
+        <rect
+          x="210"
+          y="244"
+          width="260"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="340"
+          y="265"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Flask app (app.py)
+        </text>
+        <text
+          class="ts"
+          x="340"
+          y="285"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Routes + session auth
+        </text>
+      </g>
+
+      <rect
+        x="58"
+        y="338"
+        width="564"
+        height="204"
+        rx="10"
+        fill="none"
+        stroke="#D3D1C7"
+        stroke-width="0.5"
+        stroke-dasharray="5 3"
+      />
+      <text class="ts" x="340" y="356" text-anchor="middle">
+        Flask route groups
+      </text>
+
+      <g class="c-purple">
+        <rect
+          x="72"
+          y="366"
+          width="126"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="135"
+          y="387"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Auth
+        </text>
+        <text
+          class="ts"
+          x="135"
+          y="407"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          /signup /login /otp
+        </text>
+      </g>
+      <g class="c-purple">
+        <rect
+          x="214"
+          y="366"
+          width="126"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="277"
+          y="387"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Upload
+        </text>
+        <text
+          class="ts"
+          x="277"
+          y="407"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          /upload
+        </text>
+      </g>
+      <g class="c-purple">
+        <rect
+          x="356"
+          y="366"
+          width="126"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="419"
+          y="387"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Payment
+        </text>
+        <text
+          class="ts"
+          x="419"
+          y="407"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          /create-order /success
+        </text>
+      </g>
+      <g class="c-teal">
+        <rect
+          x="498"
+          y="366"
+          width="116"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="556"
+          y="387"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Kiosk
+        </text>
+        <text
+          class="ts"
+          x="556"
+          y="407"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          /validate /print
+        </text>
+      </g>
+      <g class="c-purple">
+        <rect
+          x="72"
+          y="442"
+          width="126"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="135"
+          y="463"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Profile
+        </text>
+        <text
+          class="ts"
+          x="135"
+          y="483"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          /profile /history
+        </text>
+      </g>
+      <g class="c-purple">
+        <rect
+          x="214"
+          y="442"
+          width="126"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="277"
+          y="463"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          File processing
+        </text>
+        <text
+          class="ts"
+          x="277"
+          y="483"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Pillow · pdf2image
+        </text>
+      </g>
+      <g class="c-purple">
+        <rect
+          x="356"
+          y="442"
+          width="126"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="419"
+          y="463"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Receipt gen
+        </text>
+        <text
+          class="ts"
+          x="419"
+          y="483"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          ReportLab · qrcode
+        </text>
+      </g>
+      <g class="c-teal">
+        <rect
+          x="498"
+          y="442"
+          width="116"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="556"
+          y="463"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Print dispatch
+        </text>
+        <text
+          class="ts"
+          x="556"
+          y="483"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Ghostscript · lp
+        </text>
+      </g>
+
+      <g class="c-blue">
+        <rect
+          x="60"
+          y="578"
+          width="150"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="135"
+          y="599"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          kiosk.db
+        </text>
+        <text
+          class="ts"
+          x="135"
+          y="619"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          users · jobs · otps
+        </text>
+      </g>
+      <g class="c-blue">
+        <rect
+          x="230"
+          y="578"
+          width="160"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="310"
+          y="599"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          kiosk_done.db
+        </text>
+        <text
+          class="ts"
+          x="310"
+          y="619"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          printed_jobs
+        </text>
+      </g>
+      <g class="c-blue">
+        <rect
+          x="410"
+          y="578"
+          width="100"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="460"
+          y="599"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          uploads/
+        </text>
+        <text
+          class="ts"
+          x="460"
+          y="619"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          PDF · images
+        </text>
+      </g>
+      <g class="c-blue">
+        <rect
+          x="526"
+          y="578"
+          width="106"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="579"
+          y="599"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          previews/
+        </text>
+        <text
+          class="ts"
+          x="579"
+          y="619"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          colour · gray JPGs
+        </text>
+      </g>
+
+      <g class="c-coral">
+        <rect
+          x="60"
+          y="748"
+          width="150"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="135"
+          y="769"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Gmail (SMTP)
+        </text>
+        <text
+          class="ts"
+          x="135"
+          y="789"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          OTP · receipt · deletion
+        </text>
+      </g>
+      <g class="c-coral">
+        <rect
+          x="230"
+          y="748"
+          width="150"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="305"
+          y="769"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Razorpay
+        </text>
+        <text
+          class="ts"
+          x="305"
+          y="789"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          order · payment capture
+        </text>
+      </g>
+      <g class="c-coral">
+        <rect
+          x="400"
+          y="748"
+          width="120"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="460"
+          y="769"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Print code
+        </text>
+        <text
+          class="ts"
+          x="460"
+          y="789"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          6-digit · QR
+        </text>
+      </g>
+      <g class="c-coral">
+        <rect
+          x="536"
+          y="748"
+          width="96"
+          height="56"
+          rx="8"
+          stroke-width="0.5"
+        />
+        <text
+          class="th"
+          x="584"
+          y="769"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          Printer
+        </text>
+        <text
+          class="ts"
+          x="584"
+          y="789"
+          text-anchor="middle"
+          dominant-baseline="central"
+        >
+          lp · CUPS
+        </text>
+      </g>
+
+      <path
+        d="M140 116 L140 148 L270 148 L270 168"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M540 116 L540 148 L410 148 L410 168"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <line
+        x1="340"
+        y1="224"
+        x2="340"
+        y2="244"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <line
+        x1="340"
+        y1="300"
+        x2="340"
+        y2="338"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <line
+        x1="200"
+        y1="542"
+        x2="200"
+        y2="578"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M135 542 L135 578"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M460 498 L460 578"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M556 498 L556 542 L579 542 L579 578"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M135 634 L135 748"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M305 634 L305 748"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M460 634 L460 748"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+      <path
+        d="M579 634 L579 748"
+        fill="none"
+        stroke="#888780"
+        stroke-width="1"
+        marker-end="url(#arrow)"
+      />
+
+      <g class="c-purple">
+        <rect x="60" y="826" width="12" height="12" rx="2" stroke-width="0.5" />
+      </g>
+      <text class="ts" x="78" y="837">User flow</text>
+      <g class="c-teal">
+        <rect
+          x="148"
+          y="826"
+          width="12"
+          height="12"
+          rx="2"
+          stroke-width="0.5"
+        />
+      </g>
+      <text class="ts" x="166" y="837">Kiosk flow</text>
+      <g class="c-blue">
+        <rect
+          x="240"
+          y="826"
+          width="12"
+          height="12"
+          rx="2"
+          stroke-width="0.5"
+        />
+      </g>
+      <text class="ts" x="258" y="837">Storage</text>
+      <g class="c-coral">
+        <rect
+          x="318"
+          y="826"
+          width="12"
+          height="12"
+          rx="2"
+          stroke-width="0.5"
+        />
+      </g>
+      <text class="ts" x="336" y="837">External / output</text>
+    </svg>
+  </body>
+</html>
