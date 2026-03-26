@@ -1450,14 +1450,11 @@
       let pendingPayment = null;
 
       function payNormal() {
-        let type = document.querySelector(
-          'input[name="pageType"]:checked',
-        ).value;
+        let pageType = document.querySelector('input[name="pageType"]:checked').value;
+
         let selectedPageList = getSelectedPages();
         let start = selectedPageList.length ? Math.min(...selectedPageList) : 1;
-        let end = selectedPageList.length
-          ? Math.max(...selectedPageList)
-          : pages;
+        let end = selectedPageList.length ? Math.max(...selectedPageList) : pages;
         let amt = document.getElementById("amount").innerText;
 
         if (parseFloat(amt) <= 0) {
@@ -1471,16 +1468,18 @@
           amount: amt,
           start,
           end,
+          page_type: pageType   // ✅ ADD THIS HERE
         };
+
         showConfirm(amt, selectedPageList.length, "normal");
       }
 
       function payCustom() {
+        let pageType = document.querySelector('input[name="pageType"]:checked').value;
+
         let selectedPageList = getSelectedPages();
         let start = selectedPageList.length ? Math.min(...selectedPageList) : 1;
-        let end = selectedPageList.length
-          ? Math.max(...selectedPageList)
-          : pages;
+        let end = selectedPageList.length ? Math.max(...selectedPageList) : pages;
         let amt = document.getElementById("customAmount").innerText;
 
         if (parseFloat(amt) <= 0) {
@@ -1494,7 +1493,9 @@
           amount: amt,
           start,
           end,
+          page_type: pageType   // ✅ ADD THIS
         };
+
         showConfirm(amt, selectedPageList.length, "custom");
       }
 
@@ -1563,12 +1564,12 @@
 
       function confirmAndPay() {
         if (!pendingPayment) return;
-        let { mode, pagesObj, amount, start, end } = pendingPayment;
+        let { mode, pagesObj, amount, start, end, page_type } = pendingPayment;
+        startPayment(mode, pagesObj, amount, start, end, page_type);
         closeConfirm();
-        startPayment(mode, pagesObj, amount, start, end);
       }
 
-      function startPayment(mode, pagesObj, amount, start, end) {
+      function startPayment(mode, pagesObj, amount, start, end, page_type) {
         showLoader();
 
         fetch("/create-order", {
@@ -1600,6 +1601,7 @@
                     pages: pagesObj,
                     start_page: start,
                     end_page: end,
+                    page_type: page_type
                   }),
                 })
                   .then((r) => r.json())

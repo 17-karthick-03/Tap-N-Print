@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
 from pdf2image import convert_from_path
 import razorpay
+from PyPDF2 import PdfReader, PdfWriter
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import qrcode
@@ -334,7 +335,7 @@ def init_db():
             end_page   INTEGER
         )""")
 
-        for col in ("start_page INTEGER", "end_page INTEGER"):
+        for col in ("start_page INTEGER", "end_page INTEGER", "page_type TEXT DEFAULT 'all'"):
             try:
                 c.execute(f"ALTER TABLE jobs ADD COLUMN {col}")
             except Exception:
@@ -827,6 +828,7 @@ def payment_success():
     copies     = data["copies"]
     mode       = data.get("mode", "normal")
     page_modes = data.get("pages", {})
+    page_type = data.get("page_type", "all")
     start_page = data.get("start_page")
     end_page   = data.get("end_page")
 
@@ -839,9 +841,10 @@ def payment_success():
 
         c.execute("""
             UPDATE jobs
-            SET code=?,amount=?,bw=?,copies=?,status='PAID',mode=?,start_page=?,end_page=?
+            SET code=?,amount=?,bw=?,copies=?,status='PAID',
+                mode=?,start_page=?,end_page=?,page_type=?
             WHERE id=?
-        """, (code, amount, bw, copies, mode, start_page, end_page, job_id))
+        """, (code, amount, bw, copies, mode, start_page, end_page, page_type, job_id))
 
         if mode == "custom":
             for pn, cm in page_modes.items():
@@ -1106,6 +1109,39 @@ def kiosk_validate():
     return jsonify({"status":"OK","name":row[0],"file":row[1],
                     "bw":row[2],"copies":row[3],"mode":row[4]})
 
+def filter_pages(file_path, page_type, start_page=None, end_page=None):
+    reader = PdfReader(file_path)
+    writer = PdfWriter()
+
+    for i, page in enumerate(reader.pages):
+        page_no = i + 1
+
+        # ✅ RANGE mode
+        if page_type == "range":
+            if start_page and end_page:
+                if page_no < start_page or page_no > end_page:
+                    continue
+
+        # ✅ ODD / EVEN mode (IGNORE RANGE)
+        elif page_type == "odd":
+            if page_no % 2 == 0:
+                continue
+
+        elif page_type == "even":
+            if page_no % 2 != 0:
+                continue
+
+        # ✅ ALL
+        # no filtering
+
+        writer.add_page(page)
+
+    output_path = file_path.replace(".pdf", "_filtered.pdf")
+
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+    return output_path
 
 @app.route("/kiosk/print", methods=["POST"])
 def kiosk_print():
@@ -1113,24 +1149,27 @@ def kiosk_print():
 
     with sqlite3.connect("kiosk.db") as c:
         row = c.execute("""
-            SELECT file,bw,copies,start_page,end_page,name,email FROM jobs
+            SELECT file,bw,copies,start_page,end_page,page_type,name,email FROM jobs
             WHERE code=? AND status='PAID'
         """, (code,)).fetchone()
 
-    file_path, bw, copies, start_page, end_page, user_name, user_email = row
+    file_path, bw, copies, start_page, end_page, page_type, user_name, user_email = row
     print_file = file_path
+    if page_type in ["odd", "even"]:
+        print_file = filter_pages(print_file, page_type, start_page, end_page)
 
     if bw == "bw":
-        gray_path = file_path.replace(".pdf", "_gray.pdf")
+        gray_path = print_file.replace(".pdf", "_gray.pdf")
         subprocess.run([
             "gs","-sDEVICE=pdfwrite","-dColorConversionStrategy=/Gray",
             "-dProcessColorModel=/DeviceGray","-dCompatibilityLevel=1.4",
-            "-dNOPAUSE","-dBATCH","-sOutputFile="+gray_path, file_path
+            "-dNOPAUSE","-dBATCH","-sOutputFile="+gray_path, print_file
         ])
         print_file = gray_path
 
     lp_cmd = ["lp"]
-    if start_page and end_page:
+    # ONLY apply range if page_type is range
+    if page_type == "range" and start_page and end_page:
         lp_cmd += ["-P", f"{start_page}-{end_page}"]
     lp_cmd += [print_file, "-n", str(copies)]
     subprocess.run(lp_cmd)
@@ -1153,7 +1192,7 @@ def kiosk_print():
         files_to_delete.append(file_path)
 
     # Grayscale print PDF
-    gray_path = file_path.replace(".pdf", "_gray.pdf")
+    gray_path = print_file.replace(".pdf", "_gray.pdf")
     if os.path.exists(gray_path):
         files_to_delete.append(gray_path)
 
@@ -1266,7 +1305,9 @@ def kiosk_print():
         pass  # Don't fail the print response if email fails
 
     return jsonify({"status": "PRINTED"})
-
+    
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 
 """
@@ -1309,5 +1350,3 @@ def test_receipt():
         download_name="test_receipt.pdf"
     )
 """
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
